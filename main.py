@@ -170,4 +170,4 @@ if __name__ == '__main__':
     print("📊 GET /api/cache/stats - Get cache statistics")
     print("🧹 POST /api/cache/clear - Clear all cached embeddings")
     print("🧹 POST /api/cache/cleanup - Remove invalid cache entries")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5003, debug=True)
