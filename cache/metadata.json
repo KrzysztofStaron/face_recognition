@@ -1,0 +1,884 @@
+{
+  "fe4a90c8d0144c027ea582ad12c7463b": {
+    "file_path": "C:\\Users\\kisie\\AppData\\Local\\Temp\\temp_reference_3d82d1bd8e5f4ba49a315f14e838c2ea.jpg",
+    "file_hash": "2c4875ae52ca3946803d70d9489c2448",
+    "cached_at": "2025-08-14T23:43:10.895568",
+    "num_faces": 1
+  },
+  "3e0dfe4fbb62dfd3b6e9d543c6aee59f": {
+    "file_path": "data\\demowki001.jpg",
+    "file_hash": "927344e48ecd397e53c8d40a7ed2d3a8",
+    "cached_at": "2025-08-14T23:43:11.204373",
+    "num_faces": 1
+  },
+  "44e69d44cbfd8e421386d71c11eb5362": {
+    "file_path": "data\\demowki002.jpg",
+    "file_hash": "320540ada1ed3d9d0a118f95c9e89671",
+    "cached_at": "2025-08-14T23:43:11.519537",
+    "num_faces": 1
+  },
+  "6a8b04ae934059ebc8b7cff7e566dc71": {
+    "file_path": "data\\demowki003.jpg",
+    "file_hash": "380b6b0d5104f91242c4f6fad41e056b",
+    "cached_at": "2025-08-14T23:43:11.852541",
+    "num_faces": 1
+  },
+  "f3ead6045f9875464e680219859da49a": {
+    "file_path": "data\\demowki004.jpg",
+    "file_hash": "a04854e859f05695621c1819128314f0",
+    "cached_at": "2025-08-14T23:43:12.197634",
+    "num_faces": 1
+  },
+  "fc85016f1ad7b3e5761229c156f1a7ef": {
+    "file_path": "data\\demowki005.jpg",
+    "file_hash": "a4cb47701af9c1cd578880526d3800ed",
+    "cached_at": "2025-08-14T23:43:12.529272",
+    "num_faces": 1
+  },
+  "1a8d9f3aa035a26b2fbbb07a0a7488c4": {
+    "file_path": "data\\demowki006.jpg",
+    "file_hash": "eb56cf1dfd9cde72d63c317fe171431c",
+    "cached_at": "2025-08-14T23:43:12.876316",
+    "num_faces": 1
+  },
+  "1fecaf8cb124c0adb1deb1f0c10cd182": {
+    "file_path": "data\\demowki007.jpg",
+    "file_hash": "bf0f59b6ec7bd644ef14b5cad70f32b5",
+    "cached_at": "2025-08-14T23:43:13.198019",
+    "num_faces": 1
+  },
+  "5fe86d00d2bdd9a6942b688226a3d1b3": {
+    "file_path": "data\\demowki008.jpg",
+    "file_hash": "d0e384df8709990b222c21189b5bec35",
+    "cached_at": "2025-08-14T23:43:13.530500",
+    "num_faces": 1
+  },
+  "0db6aa5834128dd5d0cefbe54912a417": {
+    "file_path": "data\\demowki009.jpg",
+    "file_hash": "c2497820ebe93de67d46594b18676666",
+    "cached_at": "2025-08-14T23:43:13.807142",
+    "num_faces": 1
+  },
+  "83a5c18b586272a47bc1db29cbb77f5c": {
+    "file_path": "data\\demowki010.jpg",
+    "file_hash": "2f03d01e2bb5ca2f703da7fa2fc6f37e",
+    "cached_at": "2025-08-14T23:43:14.118821",
+    "num_faces": 1
+  },
+  "6b6a82f8ea3a1efb7c6d854ec0602995": {
+    "file_path": "data\\demowki011.jpg",
+    "file_hash": "c601ee20a47e6456dd1466a70b4f59fb",
+    "cached_at": "2025-08-14T23:43:14.442874",
+    "num_faces": 1
+  },
+  "672ae3424c887144666515a54b46384e": {
+    "file_path": "data\\demowki012.jpg",
+    "file_hash": "a7048d2a2c7132525aef42e2e20b2bbc",
+    "cached_at": "2025-08-14T23:43:14.782735",
+    "num_faces": 1
+  },
+  "44e1c04409ef8cf22d08376ef2cdb715": {
+    "file_path": "data\\demowki013.jpg",
+    "file_hash": "639ff38603313bb23affbab4fd452d6f",
+    "cached_at": "2025-08-14T23:43:15.125432",
+    "num_faces": 1
+  },
+  "06b751754a99ea830bf1a330e941a31b": {
+    "file_path": "data\\demowki014.jpg",
+    "file_hash": "4af5329330e96590e41d9e851f4b5ac1",
+    "cached_at": "2025-08-14T23:43:15.453499",
+    "num_faces": 1
+  },
+  "021880590c1f241bdbc0037c3388ff28": {
+    "file_path": "data\\demowki015.jpg",
+    "file_hash": "4e6ab9b012d4de0b36fe509240e9d495",
+    "cached_at": "2025-08-14T23:43:15.776891",
+    "num_faces": 1
+  },
+  "13f2e86b8addc39637668af9eac1f25e": {
+    "file_path": "data\\demowki016.jpg",
+    "file_hash": "0f77ba8796c9332df76f5aa34bd29ddf",
+    "cached_at": "2025-08-14T23:43:16.090492",
+    "num_faces": 1
+  },
+  "3e9053b11cb56110f9201aa59b6f8f0f": {
+    "file_path": "data\\demowki017.jpg",
+    "file_hash": "25967f6ce4a40519ca7bac7b2d59440a",
+    "cached_at": "2025-08-14T23:43:16.502846",
+    "num_faces": 1
+  },
+  "72d681aa3b038deeb969983f6edf7b2c": {
+    "file_path": "data\\demowki018.jpg",
+    "file_hash": "7a5293da3841b1950816ef3335c3eca2",
+    "cached_at": "2025-08-14T23:43:16.852356",
+    "num_faces": 1
+  },
+  "ddea7f4b42bf93504c3fe8b01be3bc7a": {
+    "file_path": "data\\demowki019.jpg",
+    "file_hash": "60bacca61fd8a8a03096e3410b64aa2c",
+    "cached_at": "2025-08-14T23:43:17.194301",
+    "num_faces": 1
+  },
+  "986ac9c3ce0d909fb89d53e3b7a1b257": {
+    "file_path": "data\\demowki020.jpg",
+    "file_hash": "ca054318349dc75d501364e5a8f14372",
+    "cached_at": "2025-08-14T23:43:17.508239",
+    "num_faces": 1
+  },
+  "b2acd4a42ea0371066467f2d3388ae6d": {
+    "file_path": "data\\demowki021.jpg",
+    "file_hash": "bd573bfe798d71b54a362a3a35ce4508",
+    "cached_at": "2025-08-14T23:43:17.831605",
+    "num_faces": 1
+  },
+  "c890a356d83fe8337115b17ddcc3805d": {
+    "file_path": "data\\demowki022.jpg",
+    "file_hash": "c0b38570952ac2e90b5b223db7b5e324",
+    "cached_at": "2025-08-14T23:43:18.159225",
+    "num_faces": 1
+  },
+  "0d210e84971107e04a6f3c5db8a44a48": {
+    "file_path": "data\\demowki023.jpg",
+    "file_hash": "580d953298f109bfae752b2aacb18662",
+    "cached_at": "2025-08-14T23:43:18.469011",
+    "num_faces": 1
+  },
+  "d4b7a6093b72ee4ee267d282c07eb085": {
+    "file_path": "data\\demowki024.jpg",
+    "file_hash": "f58ef6e7c0606bbb2018b6aeacc5713e",
+    "cached_at": "2025-08-14T23:43:18.788153",
+    "num_faces": 1
+  },
+  "830b8be5bec82710c71c4466b93e43b7": {
+    "file_path": "data\\demowki025.jpg",
+    "file_hash": "11e54d04b39cab436497fdf91766b67f",
+    "cached_at": "2025-08-14T23:43:19.140382",
+    "num_faces": 1
+  },
+  "5f7ae4c156151de3b3340909d8fdb98e": {
+    "file_path": "data\\demowki026.jpg",
+    "file_hash": "0117bc926bfe9adb116287f500988ab5",
+    "cached_at": "2025-08-14T23:43:19.472012",
+    "num_faces": 1
+  },
+  "42b6ff04d639f19f057e75114b5898a8": {
+    "file_path": "data\\demowki027.jpg",
+    "file_hash": "f2564589ba8b929138e11e24309b3ac0",
+    "cached_at": "2025-08-14T23:43:19.806800",
+    "num_faces": 1
+  },
+  "e8096160be0ac890af930c1db032848c": {
+    "file_path": "data\\demowki028.jpg",
+    "file_hash": "2581a0c11627348da0c322eff8668347",
+    "cached_at": "2025-08-14T23:43:20.128966",
+    "num_faces": 1
+  },
+  "2baf03d2936d3cb298ad49023a577be4": {
+    "file_path": "data\\demowki029.jpg",
+    "file_hash": "254d063d4253805dd4dd0e595c827d9a",
+    "cached_at": "2025-08-14T23:43:20.435288",
+    "num_faces": 1
+  },
+  "6d9a2c55c871a54f55cf6f56b87cd343": {
+    "file_path": "data\\demowki030.jpg",
+    "file_hash": "9ffa461eb08746c192fced8b0917de93",
+    "cached_at": "2025-08-14T23:43:23.839216",
+    "num_faces": 17
+  },
+  "88b5f4fe6ba9aeda5ac81cc6d8ec42cc": {
+    "file_path": "data\\demowki031.jpg",
+    "file_hash": "1e2a26bef8a5d2a00090796a8b67c3cf",
+    "cached_at": "2025-08-14T23:43:24.194098",
+    "num_faces": 1
+  },
+  "a0e17a314a2de2b46b1f6c52074fa3bd": {
+    "file_path": "data\\demowki032.jpg",
+    "file_hash": "c4fb4b57bbe89f13acdd5419d4ec9303",
+    "cached_at": "2025-08-14T23:43:24.554141",
+    "num_faces": 1
+  },
+  "ee7dc7ff96bf51c21978c669ba0f1de6": {
+    "file_path": "data\\demowki033.jpg",
+    "file_hash": "23e33bc479bd97d819070c637fe00f71",
+    "cached_at": "2025-08-14T23:43:24.880058",
+    "num_faces": 1
+  },
+  "0561bba4776089809fd4ade7de95651e": {
+    "file_path": "data\\demowki034.jpg",
+    "file_hash": "dca6514424ef561c87ca37ced3ee9918",
+    "cached_at": "2025-08-14T23:43:25.226079",
+    "num_faces": 1
+  },
+  "7d0c885349a0b1423901caacedcbf7b6": {
+    "file_path": "data\\demowki035.jpg",
+    "file_hash": "099960b3ab19b09b3d573e5ebdeb7307",
+    "cached_at": "2025-08-14T23:43:25.560265",
+    "num_faces": 1
+  },
+  "f7370e7f17c4e746c1b796382c8cdfd6": {
+    "file_path": "data\\demowki036.jpg",
+    "file_hash": "fec75565b0db448953ae6ca78354c079",
+    "cached_at": "2025-08-14T23:43:25.905188",
+    "num_faces": 1
+  },
+  "5311f181cd4b0da88605d2c6bdd856f4": {
+    "file_path": "data\\demowki037.jpg",
+    "file_hash": "0a6922814a2f498dac5ec37b7d4e8517",
+    "cached_at": "2025-08-14T23:43:26.289548",
+    "num_faces": 1
+  },
+  "343ffc813bd2722f9236a83eecbff72c": {
+    "file_path": "data\\demowki038.jpg",
+    "file_hash": "eb054cb6a61534d1d5c13a691c3a1366",
+    "cached_at": "2025-08-14T23:43:26.615199",
+    "num_faces": 1
+  },
+  "989cf6e7aaaf53aa84010e0ce64354b1": {
+    "file_path": "data\\demowki039.jpg",
+    "file_hash": "6a65fc7169e92d90b22bb62fe0570b54",
+    "cached_at": "2025-08-14T23:43:27.007884",
+    "num_faces": 1
+  },
+  "2887ff0c4bdbffe620bc5e31d80f791b": {
+    "file_path": "data\\demowki040.jpg",
+    "file_hash": "1ad2473e56f538cf12279645b98251eb",
+    "cached_at": "2025-08-14T23:43:27.387364",
+    "num_faces": 1
+  },
+  "9c4372c8eb780f34bc968f73640708d0": {
+    "file_path": "data\\demowki041.jpg",
+    "file_hash": "6549839d486a7a60fe08ace9ab8d2f0d",
+    "cached_at": "2025-08-14T23:43:27.713558",
+    "num_faces": 1
+  },
+  "2a14ade6a3a4165cf651a72cd5abecf4": {
+    "file_path": "data\\demowki042.jpg",
+    "file_hash": "6912a92e5638ad543809dcc05de7133b",
+    "cached_at": "2025-08-14T23:43:28.053906",
+    "num_faces": 1
+  },
+  "1947295d40f547d835ae09ca69350da9": {
+    "file_path": "data\\demowki043.jpg",
+    "file_hash": "b6b3c356f680b70cc9d140fc924db2c5",
+    "cached_at": "2025-08-14T23:43:28.425424",
+    "num_faces": 1
+  },
+  "ba31b31ae7f50786f3c2a4fc62573096": {
+    "file_path": "data\\demowki044.jpg",
+    "file_hash": "c2cc3c76eca79a56991b5b5d599bbe1e",
+    "cached_at": "2025-08-14T23:43:28.781318",
+    "num_faces": 1
+  },
+  "da943235d740bbf4d243c9e4f74f6ac1": {
+    "file_path": "data\\demowki045.jpg",
+    "file_hash": "57c8114777b1bc65ae5b714bae645a08",
+    "cached_at": "2025-08-14T23:43:29.150818",
+    "num_faces": 1
+  },
+  "a737f076fa130a3606a245a93325fd4c": {
+    "file_path": "data\\demowki046.jpg",
+    "file_hash": "03e2c11badaafecbf6178bb7c03926b7",
+    "cached_at": "2025-08-14T23:43:29.512118",
+    "num_faces": 1
+  },
+  "a5db3a982a4005d86f45203d9e493362": {
+    "file_path": "data\\demowki047.jpg",
+    "file_hash": "cf18f990c3b4c4139452488fdbfc38e0",
+    "cached_at": "2025-08-14T23:43:29.860805",
+    "num_faces": 1
+  },
+  "3c246815ed62075e9c467b8c955a457b": {
+    "file_path": "data\\demowki048.jpg",
+    "file_hash": "70ce1c67117a57f14ba6bd7899f3cb05",
+    "cached_at": "2025-08-14T23:43:30.209701",
+    "num_faces": 1
+  },
+  "e3b4c3e394e1608af8e726e61e8c0da4": {
+    "file_path": "data\\demowki049.jpg",
+    "file_hash": "90e838c5aba45c78969ca67d9ace2d9c",
+    "cached_at": "2025-08-14T23:43:30.547114",
+    "num_faces": 1
+  },
+  "7409bab03901626df27c73ba81a4a899": {
+    "file_path": "data\\demowki050.jpg",
+    "file_hash": "efcf1ef4528b7a3ad0a7e78b527e4e6d",
+    "cached_at": "2025-08-14T23:43:30.877971",
+    "num_faces": 1
+  },
+  "11ac0a1aeba34b48bcdc7002c0edc82c": {
+    "file_path": "data\\demowki051.jpg",
+    "file_hash": "7d49fcf522d32aa600f280c6058163a3",
+    "cached_at": "2025-08-14T23:43:31.314898",
+    "num_faces": 1
+  },
+  "143679eb366559184659d567f1aa595b": {
+    "file_path": "data\\demowki052.jpg",
+    "file_hash": "27b90daad06ee6018e19a1aaec0ae9b3",
+    "cached_at": "2025-08-14T23:43:31.638132",
+    "num_faces": 1
+  },
+  "9b2d1e3fbd806c5f0ae2e7f37bc5ac1c": {
+    "file_path": "data\\demowki053.jpg",
+    "file_hash": "de547cd28b2cf0fb901b4172e3563ebd",
+    "cached_at": "2025-08-14T23:43:31.945121",
+    "num_faces": 1
+  },
+  "235f576fa2fc7bcf6f64764f36ce3099": {
+    "file_path": "data\\demowki054.jpg",
+    "file_hash": "01b9dfd471e95bb8b2ccb354c525ac9e",
+    "cached_at": "2025-08-14T23:43:32.270274",
+    "num_faces": 1
+  },
+  "3c86b209c5c507a3bd104e0130d98cac": {
+    "file_path": "data\\demowki055.jpg",
+    "file_hash": "052d81f0e909523173ee6cc847081cb5",
+    "cached_at": "2025-08-14T23:43:32.615655",
+    "num_faces": 1
+  },
+  "ce238dfb62a5f190fdb68064bc4d0bb2": {
+    "file_path": "data\\demowki056.jpg",
+    "file_hash": "3051dc9d4da491ebea19c2a48bcedcba",
+    "cached_at": "2025-08-14T23:43:32.969525",
+    "num_faces": 1
+  },
+  "fed9ab628189c30ba2b4b9368b55f188": {
+    "file_path": "data\\demowki057.jpg",
+    "file_hash": "233305da13300351d8a11099df15da4a",
+    "cached_at": "2025-08-14T23:43:33.312302",
+    "num_faces": 1
+  },
+  "fc39cf28f784af76dc5da32805e61322": {
+    "file_path": "data\\demowki058.jpg",
+    "file_hash": "ff058708274deea2bd2badb0db7561ab",
+    "cached_at": "2025-08-14T23:43:33.632171",
+    "num_faces": 1
+  },
+  "c59a650c500c8dd97a6301d6fa7c1224": {
+    "file_path": "data\\demowki059.jpg",
+    "file_hash": "172b0707528a3753b69c13fdbdc59615",
+    "cached_at": "2025-08-14T23:43:33.980156",
+    "num_faces": 1
+  },
+  "f2af84ffeaedcd6b4b9b4fca8cc099cd": {
+    "file_path": "data\\demowki060.jpg",
+    "file_hash": "0107583636cac8d160d96773f4334357",
+    "cached_at": "2025-08-14T23:43:34.324677",
+    "num_faces": 1
+  },
+  "6cf837c99536c39f3c16f7a8677c9df3": {
+    "file_path": "data\\demowki061.jpg",
+    "file_hash": "8b869650c427030737a3f19909ae24a3",
+    "cached_at": "2025-08-14T23:43:34.660520",
+    "num_faces": 1
+  },
+  "619c13739b3c2b90ae32976710edf02d": {
+    "file_path": "data\\demowki062.jpg",
+    "file_hash": "a6c365040aca983ba6c23ff19a5278c2",
+    "cached_at": "2025-08-14T23:43:34.985906",
+    "num_faces": 1
+  },
+  "ac8ff4a45afa919a93a57f4b85bd67aa": {
+    "file_path": "data\\demowki063.jpg",
+    "file_hash": "01474caedff62bd0d85bd46c2c37740f",
+    "cached_at": "2025-08-14T23:43:39.204990",
+    "num_faces": 23
+  },
+  "2acb0a7bc2cc84d433bcca66e402fe2f": {
+    "file_path": "data\\demowki064.jpg",
+    "file_hash": "910ba244b2121bd86e77ff8df3179175",
+    "cached_at": "2025-08-14T23:43:39.543858",
+    "num_faces": 1
+  },
+  "f6b1708d82f5f2bfe0e43e792618f8b1": {
+    "file_path": "data\\demowki065.jpg",
+    "file_hash": "5bff7cf5495081b43f58cd571ee7723d",
+    "cached_at": "2025-08-14T23:43:40.084312",
+    "num_faces": 2
+  },
+  "64245f32e21da21f46e61044792ebf2f": {
+    "file_path": "data\\demowki066.jpg",
+    "file_hash": "c6e4a09ad7e6a39b72c063a9857b0ee0",
+    "cached_at": "2025-08-14T23:43:40.392198",
+    "num_faces": 1
+  },
+  "8974f9c5a9e8c99aebd7d9433371bb89": {
+    "file_path": "data\\demowki067.jpg",
+    "file_hash": "096543d539c5b489d57419e23ed7a947",
+    "cached_at": "2025-08-14T23:43:40.899921",
+    "num_faces": 2
+  },
+  "4ed436070808b0018dc4046c9499533f": {
+    "file_path": "data\\demowki068.jpg",
+    "file_hash": "9bf38802e27e62830e561b39ddc1c781",
+    "cached_at": "2025-08-14T23:43:41.309629",
+    "num_faces": 1
+  },
+  "3105cd36e6d7c61cae1071bf85f66ad2": {
+    "file_path": "data\\demowki069.jpg",
+    "file_hash": "26fab4a594f8735cc0c6d26386c03d67",
+    "cached_at": "2025-08-14T23:43:41.682885",
+    "num_faces": 1
+  },
+  "d1d42775ff421cf9cade8044050fbc56": {
+    "file_path": "data\\demowki070.jpg",
+    "file_hash": "2c4875ae52ca3946803d70d9489c2448",
+    "cached_at": "2025-08-14T23:43:42.020102",
+    "num_faces": 1
+  },
+  "d84bbd06e2878cfa377f34654818bfff": {
+    "file_path": "data\\demowki071.jpg",
+    "file_hash": "20671bfccb034edf6bf4fb73c91d7042",
+    "cached_at": "2025-08-14T23:43:42.373129",
+    "num_faces": 1
+  },
+  "4bf59809335b0402effcb295dea1c3e7": {
+    "file_path": "data\\demowki072.jpg",
+    "file_hash": "d9d64fc1e9161525e347adae8e4ec651",
+    "cached_at": "2025-08-14T23:43:42.712646",
+    "num_faces": 1
+  },
+  "c3b77feac0e246b2e777102e065bcadc": {
+    "file_path": "data\\demowki073.jpg",
+    "file_hash": "998fa18553151bb40870789e432408d9",
+    "cached_at": "2025-08-14T23:43:43.044520",
+    "num_faces": 1
+  },
+  "54cd4382fb4673497651fefc5f30fd69": {
+    "file_path": "data\\demowki074.jpg",
+    "file_hash": "56bcf84e3167b651f80aa7a7079b2302",
+    "cached_at": "2025-08-14T23:43:43.373231",
+    "num_faces": 1
+  },
+  "8cf5bb3c0905600b7f79c8bc22c884b7": {
+    "file_path": "data\\demowki075.jpg",
+    "file_hash": "5407becaec975b842261b8cc13badc88",
+    "cached_at": "2025-08-14T23:43:43.718129",
+    "num_faces": 1
+  },
+  "645a2c4b4f115a0a437ca117ae8cd74a": {
+    "file_path": "data\\demowki076.jpg",
+    "file_hash": "0fc8d6303a4d83793c9b8a141b8b6800",
+    "cached_at": "2025-08-14T23:43:44.069591",
+    "num_faces": 1
+  },
+  "c1c0799bbc9b2ef35d3301f21262aea3": {
+    "file_path": "data\\demowki077.jpg",
+    "file_hash": "24c78cc818bfb11fef5868a73206c1d8",
+    "cached_at": "2025-08-14T23:43:44.434567",
+    "num_faces": 1
+  },
+  "6f431b86693b62e0b7fb681f619cd904": {
+    "file_path": "data\\demowki078.jpg",
+    "file_hash": "bead7b2af057ca9f44996c378330a766",
+    "cached_at": "2025-08-14T23:43:44.766384",
+    "num_faces": 1
+  },
+  "8f11d20112a90858d184a65e4d7ffa29": {
+    "file_path": "data\\demowki079.jpg",
+    "file_hash": "98aa5ffc1c313444fe9135a51ce37db0",
+    "cached_at": "2025-08-14T23:43:45.091885",
+    "num_faces": 1
+  },
+  "82aa7931dc3deb391227758119f5b95f": {
+    "file_path": "data\\demowki080.jpg",
+    "file_hash": "059ec67c211d646ed3328854d72251df",
+    "cached_at": "2025-08-14T23:43:45.405505",
+    "num_faces": 1
+  },
+  "e951cfe66cbfcf3988b9902bfb52e881": {
+    "file_path": "data\\demowki081.jpg",
+    "file_hash": "35cadbb70290dc0e339594f04c420064",
+    "cached_at": "2025-08-14T23:43:45.731032",
+    "num_faces": 1
+  },
+  "902435f10687bade627b89df5fbd8cfa": {
+    "file_path": "data\\demowki082.jpg",
+    "file_hash": "5e1830a3b462cb7749ea7ce689d5fe2b",
+    "cached_at": "2025-08-14T23:43:46.057323",
+    "num_faces": 1
+  },
+  "48ad88ef048d49e65b9b9ca09402aadb": {
+    "file_path": "data\\demowki083.jpg",
+    "file_hash": "b33ac2418aa910234b7abf3f93c14f0b",
+    "cached_at": "2025-08-14T23:43:46.375776",
+    "num_faces": 1
+  },
+  "38d950c31e43a14741adc97aa5367d2e": {
+    "file_path": "data\\demowki084.jpg",
+    "file_hash": "5650fe828ac37e6cf3b00f59032beaa1",
+    "cached_at": "2025-08-14T23:43:46.742987",
+    "num_faces": 1
+  },
+  "d8ae1e5f8b8bdd05e8e01972650d531b": {
+    "file_path": "data\\demowki085.jpg",
+    "file_hash": "cfb2a16977440d8a1045d339b2c46bca",
+    "cached_at": "2025-08-14T23:43:47.078893",
+    "num_faces": 1
+  },
+  "77fcc909758eff2463dd8c060820331c": {
+    "file_path": "data\\demowki086.jpg",
+    "file_hash": "f4398681091e513e0be8398bc56cdbf4",
+    "cached_at": "2025-08-14T23:43:47.396575",
+    "num_faces": 1
+  },
+  "f113d325f0f22d807167f37d1b8dc8d6": {
+    "file_path": "data\\demowki087.jpg",
+    "file_hash": "f082161a778fa864ba6189d5a7cb2264",
+    "cached_at": "2025-08-14T23:43:47.998232",
+    "num_faces": 2
+  },
+  "ad9d6b04ad8254f41f6d98513d494a09": {
+    "file_path": "data\\demowki088.jpg",
+    "file_hash": "98eefc3fd1df9eb779dc78be66c5cbce",
+    "cached_at": "2025-08-14T23:43:48.331010",
+    "num_faces": 1
+  },
+  "8b18a82a45947f1325de134b62f426b5": {
+    "file_path": "data\\demowki089.jpg",
+    "file_hash": "62cbd193566d0863966fcf6553aca81e",
+    "cached_at": "2025-08-14T23:43:48.846744",
+    "num_faces": 2
+  },
+  "a8200603e4a5699cd70df2a5dfa863ab": {
+    "file_path": "data\\demowki090.jpg",
+    "file_hash": "64942fa2038accf438e08249219a7f88",
+    "cached_at": "2025-08-14T23:43:49.183435",
+    "num_faces": 1
+  },
+  "95f42e24b6fd0b5a79ff586644d2a364": {
+    "file_path": "data\\demowki091.jpg",
+    "file_hash": "0a82fe41703c3ae235818410d4657534",
+    "cached_at": "2025-08-14T23:43:49.525692",
+    "num_faces": 1
+  },
+  "c09aaa9c4d98e2fcdae6c6e40bc91e77": {
+    "file_path": "data\\demowki092.jpg",
+    "file_hash": "8b9b77e3bdafb298d4661a429f86baf0",
+    "cached_at": "2025-08-14T23:43:49.681122",
+    "num_faces": 0
+  },
+  "b110ecbe161e06c35076e886a153fca3": {
+    "file_path": "data\\demowki093.jpg",
+    "file_hash": "8df22eb2ccb693a68931b406ac160648",
+    "cached_at": "2025-08-14T23:43:50.019044",
+    "num_faces": 1
+  },
+  "2e99a18ae351600ade130678c6b0ae78": {
+    "file_path": "data\\demowki094.jpg",
+    "file_hash": "9aa7a1f4b5c8bc2e72b4513380a7d987",
+    "cached_at": "2025-08-14T23:43:50.356246",
+    "num_faces": 1
+  },
+  "afe04f8fffc39014b44922e0b9d5b01d": {
+    "file_path": "data\\demowki095.jpg",
+    "file_hash": "56cc10a1ad4de85872ad8d4a0684fec6",
+    "cached_at": "2025-08-14T23:43:50.699547",
+    "num_faces": 1
+  },
+  "0a3ae94811e0d18a03e1f8f13a1a9d96": {
+    "file_path": "data\\demowki096.jpg",
+    "file_hash": "dc69325bda450206259b853c760a8a62",
+    "cached_at": "2025-08-14T23:43:51.029779",
+    "num_faces": 1
+  },
+  "0f380acf3c87dafd5698d41af206dac8": {
+    "file_path": "data\\demowki097.jpg",
+    "file_hash": "f7252403c919c89b63f4e0529f413686",
+    "cached_at": "2025-08-14T23:43:51.372878",
+    "num_faces": 1
+  },
+  "f829cac59f500f10d444eafaf0c0156c": {
+    "file_path": "data\\demowki098.jpg",
+    "file_hash": "2453b47f3ee26260ec445561d30622ac",
+    "cached_at": "2025-08-14T23:43:51.705190",
+    "num_faces": 1
+  },
+  "8616bc96d9a3bc174a72ca24298da3d5": {
+    "file_path": "data\\demowki099.jpg",
+    "file_hash": "bcc860e9af7ecc84b78406765ed840e9",
+    "cached_at": "2025-08-14T23:43:52.053560",
+    "num_faces": 1
+  },
+  "561b62da7d4b31b223668fba6be97526": {
+    "file_path": "data\\demowki100.jpg",
+    "file_hash": "1792ccf0c143cecf7b331a1ecfd9c8f7",
+    "cached_at": "2025-08-14T23:43:52.391969",
+    "num_faces": 1
+  },
+  "7ec7615581bc65880938eeca4116db7c": {
+    "file_path": "data\\demowki101.jpg",
+    "file_hash": "1c673886287c29284b8fff7aed03181c",
+    "cached_at": "2025-08-14T23:43:52.695099",
+    "num_faces": 1
+  },
+  "27407d5e93553009b368664294196217": {
+    "file_path": "data\\demowki102.jpg",
+    "file_hash": "36a8005752a39881de95dbe1a2d7915a",
+    "cached_at": "2025-08-14T23:43:53.018777",
+    "num_faces": 1
+  },
+  "e76115415baecc8f8e808ed7e361b9a5": {
+    "file_path": "data\\demowki103.jpg",
+    "file_hash": "701b493b631e5b904bdd74e94191358b",
+    "cached_at": "2025-08-14T23:43:53.359713",
+    "num_faces": 1
+  },
+  "c3384f675394d3bc3fb26a9e0852740b": {
+    "file_path": "data\\demowki104.jpg",
+    "file_hash": "fc217e222825a4884cbb85e3e03b9b1b",
+    "cached_at": "2025-08-14T23:43:53.706582",
+    "num_faces": 1
+  },
+  "684f25a572df7b3b4aea37a68a4a5123": {
+    "file_path": "data\\demowki105.jpg",
+    "file_hash": "25cb85081b2677350e94187138543768",
+    "cached_at": "2025-08-14T23:43:54.042674",
+    "num_faces": 1
+  },
+  "61025326a19a565f345965f02212bf8f": {
+    "file_path": "data\\demowki106.jpg",
+    "file_hash": "f590aa32f8d917304d4be64ed5f349f3",
+    "cached_at": "2025-08-14T23:43:54.348292",
+    "num_faces": 1
+  },
+  "5ff65e24de32d96b2d5a18d9fb299b95": {
+    "file_path": "data\\demowki107.jpg",
+    "file_hash": "8202c8ef5fd8611373b123563eb5e003",
+    "cached_at": "2025-08-14T23:43:54.674771",
+    "num_faces": 1
+  },
+  "74048fb1a657973b4c3d37e37a2639e0": {
+    "file_path": "data\\demowki108.jpg",
+    "file_hash": "b215a060857fa7176abd91fa70a0bb8c",
+    "cached_at": "2025-08-14T23:43:55.018640",
+    "num_faces": 1
+  },
+  "defbac9e8d19229d76a23023ee605cc3": {
+    "file_path": "data\\demowki109.jpg",
+    "file_hash": "0b1961d00a268cac2f9094507e636ae2",
+    "cached_at": "2025-08-14T23:43:55.334037",
+    "num_faces": 1
+  },
+  "8a30192f3908e5db3140315f5494c5ee": {
+    "file_path": "data\\demowki110.jpg",
+    "file_hash": "cde25450a9dbf8a416a5d34c356a7821",
+    "cached_at": "2025-08-14T23:43:55.647916",
+    "num_faces": 1
+  },
+  "e020ad12c424035741a8d7c116d0fcce": {
+    "file_path": "data\\demowki111.jpg",
+    "file_hash": "36d86db0946144545187381b3324da75",
+    "cached_at": "2025-08-14T23:43:55.967396",
+    "num_faces": 1
+  },
+  "9207b7a78217be4662557c822bab31ee": {
+    "file_path": "data\\demowki112.jpg",
+    "file_hash": "6b50572ea14d8faf29f580dd46f76ce5",
+    "cached_at": "2025-08-14T23:43:56.299877",
+    "num_faces": 1
+  },
+  "016b140b19a4c27957a48929f27bab32": {
+    "file_path": "data\\demowki113.jpg",
+    "file_hash": "4b5576f193a3c1820d67d3c2e5cf2b1b",
+    "cached_at": "2025-08-14T23:43:56.645573",
+    "num_faces": 1
+  },
+  "ead0e9c0d9d2d2f4268876e2f203ebb5": {
+    "file_path": "data\\demowki114.jpg",
+    "file_hash": "b7c275d9397c9fd8495817a3417d6fb5",
+    "cached_at": "2025-08-14T23:43:56.959198",
+    "num_faces": 1
+  },
+  "00526256d72d563b6389eb774c25abe9": {
+    "file_path": "data\\demowki115.jpg",
+    "file_hash": "529765709edde2a3ab28660f0894b61f",
+    "cached_at": "2025-08-14T23:43:57.262940",
+    "num_faces": 1
+  },
+  "f8e5a74db70513fade013f68b2fec0b7": {
+    "file_path": "data\\demowki116.jpg",
+    "file_hash": "c1941fd0724f78e0c684c4703720c447",
+    "cached_at": "2025-08-14T23:43:57.601638",
+    "num_faces": 1
+  },
+  "cbee11d5e5f9ef91bfd5a1a9986b2ebd": {
+    "file_path": "data\\demowki117.jpg",
+    "file_hash": "97c6a18dfb6a0c7fde9a41dd3e90238b",
+    "cached_at": "2025-08-14T23:43:57.923741",
+    "num_faces": 1
+  },
+  "ffb7e04c600b5e786038aa250eb2fe2e": {
+    "file_path": "data\\demowki118.jpg",
+    "file_hash": "38a49c49fc40dc14f5b0500dfbff380c",
+    "cached_at": "2025-08-14T23:43:58.238379",
+    "num_faces": 1
+  },
+  "f2f41ae82d23f5d6ece2a3040d52e583": {
+    "file_path": "data\\demowki119.jpg",
+    "file_hash": "e3334238b12df0dbf414979cd8fef577",
+    "cached_at": "2025-08-14T23:43:58.585398",
+    "num_faces": 1
+  },
+  "2fd27b38b5eb3d883021777e1167a81c": {
+    "file_path": "data\\demowki120.jpg",
+    "file_hash": "989aa4d01d5f24b88ccfbfb587ad1143",
+    "cached_at": "2025-08-14T23:43:58.913290",
+    "num_faces": 1
+  },
+  "f890bb2ed24e06d834f587e0a426ef25": {
+    "file_path": "data\\demowki121.jpg",
+    "file_hash": "908bcd79a9c02af32236de39a6e75563",
+    "cached_at": "2025-08-14T23:43:59.244471",
+    "num_faces": 1
+  },
+  "6f2c53f4c9021604098639e18f94437c": {
+    "file_path": "data\\demowki123.jpg",
+    "file_hash": "a4a230856f5a38bf8d5c407a321e514d",
+    "cached_at": "2025-08-14T23:43:59.582491",
+    "num_faces": 1
+  },
+  "73e015db6e5097f903b6b331cffc89ff": {
+    "file_path": "data\\demowki124.jpg",
+    "file_hash": "c3abee4140e1d2191519240fad49d880",
+    "cached_at": "2025-08-14T23:43:59.903848",
+    "num_faces": 1
+  },
+  "03aa3beae80630ce5d5489bec96c8b1a": {
+    "file_path": "data\\demowki125.jpg",
+    "file_hash": "d377b5166502da82ff541c76629847ea",
+    "cached_at": "2025-08-14T23:44:00.558790",
+    "num_faces": 3
+  },
+  "20633558abc697a274910a56b5753706": {
+    "file_path": "data\\demowki127.jpg",
+    "file_hash": "405af1089fe2edd565da7aa9ce38d113",
+    "cached_at": "2025-08-14T23:44:00.863398",
+    "num_faces": 1
+  },
+  "0c594581441e66a9938fb5487e6c3f66": {
+    "file_path": "data\\demowki128.jpg",
+    "file_hash": "71be079f6b1c4a682c8c99bd984674e9",
+    "cached_at": "2025-08-14T23:44:01.215443",
+    "num_faces": 1
+  },
+  "c668505c5d158794829e661f4980af04": {
+    "file_path": "data\\demowki129.jpg",
+    "file_hash": "3858dafd24eb43095d59692437f8f234",
+    "cached_at": "2025-08-14T23:44:01.551932",
+    "num_faces": 1
+  },
+  "7a007e29dbc6615f6dc08e20955c8b0c": {
+    "file_path": "data\\demowki130.jpg",
+    "file_hash": "8b8d5a4e5f92a723906c55a7cd548aca",
+    "cached_at": "2025-08-14T23:44:01.896204",
+    "num_faces": 1
+  },
+  "07e6d29d0f0607f23ab11bc33b738c24": {
+    "file_path": "data\\demowki131.jpg",
+    "file_hash": "eff3c8169d046c6f2dc2c265c031f944",
+    "cached_at": "2025-08-14T23:44:02.257119",
+    "num_faces": 1
+  },
+  "18e878028f261d6bdb8acf4b03fc15f4": {
+    "file_path": "data\\demowki132.jpg",
+    "file_hash": "33578cd640df936021c894a8e4ed99a7",
+    "cached_at": "2025-08-14T23:44:02.595962",
+    "num_faces": 1
+  },
+  "1f7be1050a4952052814775bcdcea932": {
+    "file_path": "data\\demowki133.jpg",
+    "file_hash": "d86ee6d4710edd491c8a6690ede385a9",
+    "cached_at": "2025-08-14T23:44:02.948874",
+    "num_faces": 1
+  },
+  "5dbd7cbbf4f6114123de2251f69ef12e": {
+    "file_path": "data\\demowki134.jpg",
+    "file_hash": "9632c078cebc63a8bd40cd35ec622004",
+    "cached_at": "2025-08-14T23:44:03.312715",
+    "num_faces": 1
+  },
+  "1403b60e7a9e28580e83319b4cdde68b": {
+    "file_path": "data\\demowki135.jpg",
+    "file_hash": "96526b53673c0e161eb4b8ea6850f5d0",
+    "cached_at": "2025-08-14T23:44:03.656623",
+    "num_faces": 1
+  },
+  "133031760bb96ba89384aebbb964e4c3": {
+    "file_path": "data\\demowki136.jpg",
+    "file_hash": "febb7b2e41b57a5fb02966e0d6bedd17",
+    "cached_at": "2025-08-14T23:44:03.954375",
+    "num_faces": 1
+  },
+  "9670c8e781fc6f196f19c04b963faaf8": {
+    "file_path": "data\\demowki137.jpg",
+    "file_hash": "58c5886d92e1bae15c2d7c00e97b2e24",
+    "cached_at": "2025-08-14T23:44:04.476219",
+    "num_faces": 2
+  },
+  "372aa10bf4106ed3c27c39f9da41b3d5": {
+    "file_path": "data\\demowki138.jpg",
+    "file_hash": "67f208329b2a7ac667c1dc7e6b48f87a",
+    "cached_at": "2025-08-14T23:44:04.812028",
+    "num_faces": 1
+  },
+  "50a9803b679b309e3089950962c6b61b": {
+    "file_path": "data\\demowki139.jpg",
+    "file_hash": "faea06ab466027485a4b9fa2051f40f6",
+    "cached_at": "2025-08-14T23:44:05.110079",
+    "num_faces": 1
+  },
+  "0cc9794e82aacfe7350b961d0792e263": {
+    "file_path": "data\\demowki140.jpg",
+    "file_hash": "dd238a98a6d2cb499d9cc2f3bfbaa110",
+    "cached_at": "2025-08-14T23:44:05.466298",
+    "num_faces": 1
+  },
+  "53ab338c0f144b6f69a01228acd4d1bb": {
+    "file_path": "data\\demowki141.jpg",
+    "file_hash": "a82542fac23a8a4943cd8df749c84644",
+    "cached_at": "2025-08-14T23:44:05.795273",
+    "num_faces": 1
+  },
+  "8a0a951a6dcb9c9d2fe8a38d1c1aea2f": {
+    "file_path": "data\\demowki142.jpg",
+    "file_hash": "5a393ff7523315f104ab5ba5ee874c01",
+    "cached_at": "2025-08-14T23:44:06.123478",
+    "num_faces": 1
+  },
+  "5d46c229011df4cc996b2c980edcc947": {
+    "file_path": "data\\demowki143.jpg",
+    "file_hash": "bf3f5318fa617202183049bd6478eab9",
+    "cached_at": "2025-08-14T23:44:06.458685",
+    "num_faces": 1
+  },
+  "2bce423ab61b8300a7f2540f30c6c1bd": {
+    "file_path": "C:\\Users\\kisie\\AppData\\Local\\Temp\\temp_reference_ff03fdfa9639424a9bf51c91fd72689c.jpg",
+    "file_hash": "2c4875ae52ca3946803d70d9489c2448",
+    "cached_at": "2025-08-14T23:44:41.262053",
+    "num_faces": 1
+  },
+  "1553af5bf3a4b2401a39f3bc72afefc5": {
+    "file_path": "C:\\Users\\kisie\\AppData\\Local\\Temp\\temp_reference_ab84562fc6974cc99eaad8daf1c75978.jpg",
+    "file_hash": "2c4875ae52ca3946803d70d9489c2448",
+    "cached_at": "2025-08-14T23:45:11.719491",
+    "num_faces": 1
+  },
+  "c30624a8bccf19c62a274a53e005409a": {
+    "file_path": "C:\\Users\\kisie\\AppData\\Local\\Temp\\temp_reference_ebf3aa4e106b483facb69ea978da23b2.jpg",
+    "file_hash": "2c4875ae52ca3946803d70d9489c2448",
+    "cached_at": "2025-08-14T23:47:10.485866",
+    "num_faces": 1
+  },
+  "28814e970cf9e1dd39e50605abdcf317": {
+    "file_path": "C:\\Users\\kisie\\AppData\\Local\\Temp\\temp_reference_ecc39e5fcc314e9d9b3af2ccc7901a41.jpg",
+    "file_hash": "2c4875ae52ca3946803d70d9489c2448",
+    "cached_at": "2025-08-14T23:47:50.423350",
+    "num_faces": 1
+  },
+  "8468e3e369277ad15576bca3b283c582": {
+    "file_path": "C:\\Users\\kisie\\AppData\\Local\\Temp\\temp_reference_8ef7cbea63a14b33b6d9f5cf1aadc263.jpg",
+    "file_hash": "5650fe828ac37e6cf3b00f59032beaa1",
+    "cached_at": "2025-08-14T23:48:48.423342",
+    "num_faces": 1
+  }
+}

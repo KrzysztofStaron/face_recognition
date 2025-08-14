@@ -1,125 +1,173 @@
+from flask import Flask, request, jsonify
+import requests
 import cv2
-import insightface
 import numpy as np
-from insightface.app import FaceAnalysis
 import os
-import time
+import tempfile
+import uuid
+from findAll import find_matching_photos, load_reference_face
+from insightface.app import FaceAnalysis
+from embedding_cache import EmbeddingCache
 
-def cosine_similarity(a, b):
-    """Calculate cosine similarity between two face embeddings"""
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+app = Flask(__name__)
 
-def load_reference_faces(app):
-    """Load and encode reference faces from person3.jpg and person4.png"""
-    reference_faces = {}
-    
-    # Load person3.jpg
-    if os.path.exists("person3.jpg"):
-        img3 = cv2.imread("person3.jpg")
-        faces3 = app.get(img3)
-        if faces3:
-            reference_faces["person3"] = faces3[0].normed_embedding
-            print("✓ Loaded person3.jpg")
-        else:
-            print("⚠ No face detected in person3.jpg")
-    else:
-        print("⚠ person3.jpg not found")
-    
-    # Load person4.png
-    if os.path.exists("person4.png"):
-        img4 = cv2.imread("person4.png")
-        faces4 = app.get(img4)
-        if faces4:
-            reference_faces["person4"] = faces4[0].normed_embedding
-            print("✓ Loaded person4.png")
-        else:
-            print("⚠ No face detected in person4.png")
-    else:
-        print("⚠ person4.png not found")
-    
-    return reference_faces
-
-def capture_and_compare():
-    """Capture photo from webcam and compare with reference faces"""
-    # Initialize face analysis
-    print("Initializing face analysis...")
-    app = FaceAnalysis(name="buffalo_l")
-    app.prepare(ctx_id=-1)  # Use CPU (-1), change to 0 for GPU
-    
-    # Load reference faces
-    print("Loading reference faces...")
-    reference_faces = load_reference_faces(app)
-    
-    if not reference_faces:
-        print("❌ No reference faces loaded. Please ensure person3.jpg and/or person4.png exist.")
-        return
-    
-    # Initialize webcam
-    print("Initializing webcam...")
-    cap = cv2.VideoCapture(0)
-    
-    if not cap.isOpened():
-        print("❌ Could not open webcam")
-        return
-    
-    print("📷 Webcam ready! Press SPACE to capture photo, ESC to exit")
-    
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("❌ Failed to grab frame")
-            break
+def download_image_from_url(url):
+    """Download image from URL and save to temporary file"""
+    try:
+        # Download the image
+        response = requests.get(url, stream=True, timeout=30)
+        response.raise_for_status()
         
-        # Display the frame
-        cv2.imshow('Webcam - Press SPACE to capture, ESC to exit', frame)
+        # Create temporary file
+        temp_dir = tempfile.gettempdir()
+        filename = f"temp_reference_{uuid.uuid4().hex}.jpg"
+        temp_path = os.path.join(temp_dir, filename)
         
-        key = cv2.waitKey(1) & 0xFF
+        # Save image to temporary file
+        with open(temp_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
         
-        if key == 27:  # ESC key
-            print("Exiting...")
-            break
-        elif key == 32:  # SPACE key
-            print("📸 Capturing photo...")
-            
-            # Analyze the captured frame
-            faces = app.get(frame)
-            
-            if not faces:
-                print("❌ No face detected in captured image")
-                continue
-            
-            # Get the first detected face embedding
-            captured_embedding = faces[0].normed_embedding
-            
-            print(f"\n🔍 Face detected! Comparing with reference faces...")
-            print("-" * 50)
-            
-            best_match = None
-            best_similarity = -1
-            
-            # Compare with each reference face
-            for person_name, ref_embedding in reference_faces.items():
-                similarity = cosine_similarity(captured_embedding, ref_embedding)
-                print(f"{person_name}: {similarity:.4f}")
-                
-                if similarity > best_similarity:
-                    best_similarity = similarity
-                    best_match = person_name
-            
-            print("-" * 50)
-            
-            # Determine if it's a match (threshold of 0.6 is commonly used)
-            threshold = 0.6
-            if best_similarity > threshold:
-                print(f"✅ MATCH FOUND: {best_match} (similarity: {best_similarity:.4f})")
-            else:
-                print(f"❌ NO MATCH: Best similarity was {best_match} with {best_similarity:.4f} (threshold: {threshold})")
-            
-            print(f"\nPress SPACE to capture again, ESC to exit")
-    
-    # Cleanup
-    cap.release()
-    cv2.destroyAllWindows()
+        return temp_path
+    except Exception as e:
+        raise Exception(f"Failed to download image: {str(e)}")
 
-if __name__ == "__main__":
-    capture_and_compare()
+@app.route('/api/findAll', methods=['POST'])
+def find_all():
+    """API endpoint to find all photos containing a person from a reference URL"""
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        
+        if not data or 'url' not in data:
+            return jsonify({
+                'error': 'Missing required field: url',
+                'success': False
+            }), 400
+        
+        image_url = data['url']
+        threshold = data.get('threshold', 0.6)  # Default threshold
+        data_directory = data.get('data_directory', 'data')  # Default to 'data' folder
+        
+        # Validate threshold
+        if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
+            return jsonify({
+                'error': 'Threshold must be a number between 0 and 1',
+                'success': False
+            }), 400
+        
+        # Download reference image from URL
+        temp_image_path = None
+        try:
+            temp_image_path = download_image_from_url(image_url)
+            
+            # Find matching photos
+            matches = find_matching_photos(temp_image_path, data_directory, threshold)
+            
+            # Format response
+            response_data = {
+                'success': True,
+                'reference_url': image_url,
+                'threshold': threshold,
+                'data_directory': data_directory,
+                'total_matches': len(matches),
+                'matches': []
+            }
+            
+            # Sort matches by similarity (highest first)
+            matches.sort(key=lambda x: x['similarity'], reverse=True)
+            
+            for match in matches:
+                response_data['matches'].append({
+                    'filename': match['filename'],
+                    'path': match['path'],
+                    'similarity': round(float(match['similarity']), 4),
+                    'matching_faces': match['matching_faces'],
+                    'all_similarities': [round(float(s), 4) for s in match['all_similarities']]
+                })
+            
+            return jsonify(response_data), 200
+            
+        finally:
+            # Clean up temporary file
+            if temp_image_path and os.path.exists(temp_image_path):
+                try:
+                    os.remove(temp_image_path)
+                except:
+                    pass  # Ignore cleanup errors
+                    
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'success': False
+        }), 500
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'service': 'face-finder-api'
+    }), 200
+
+@app.route('/api/cache/stats', methods=['GET'])
+def cache_stats():
+    """Get cache statistics"""
+    try:
+        cache = EmbeddingCache()
+        stats = cache.get_cache_stats()
+        return jsonify({
+            'success': True,
+            'cache_stats': stats
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'success': False
+        }), 500
+
+@app.route('/api/cache/clear', methods=['POST'])
+def clear_cache():
+    """Clear all cached embeddings"""
+    try:
+        cache = EmbeddingCache()
+        cache.clear_cache()
+        return jsonify({
+            'success': True,
+            'message': 'Cache cleared successfully'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'success': False
+        }), 500
+
+@app.route('/api/cache/cleanup', methods=['POST'])
+def cleanup_cache():
+    """Remove invalid cache entries"""
+    try:
+        cache = EmbeddingCache()
+        removed = cache.remove_invalid_cache_entries()
+        return jsonify({
+            'success': True,
+            'message': f'Cleaned up {removed} invalid cache entries',
+            'removed_entries': removed
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'success': False
+        }), 500
+
+if __name__ == '__main__':
+    # Ensure data directory exists
+    if not os.path.exists('data'):
+        print("Warning: 'data' directory not found. Make sure it exists with images to search.")
+    
+    print("🚀 Starting Face Finder API...")
+    print("📍 POST /api/findAll - Find matching faces")
+    print("💚 GET /api/health - Health check")
+    print("📊 GET /api/cache/stats - Get cache statistics")
+    print("🧹 POST /api/cache/clear - Clear all cached embeddings")
+    print("🧹 POST /api/cache/cleanup - Remove invalid cache entries")
+    app.run(host='0.0.0.0', port=5000, debug=True)

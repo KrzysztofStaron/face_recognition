@@ -4,41 +4,38 @@ import numpy as np
 from insightface.app import FaceAnalysis
 import os
 import glob
+from embedding_cache import EmbeddingCache
 
 def cosine_similarity(a, b):
     """Calculate cosine similarity between two face embeddings"""
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
-def load_reference_face(app, reference_path):
-    """Load and encode reference face from the given image path"""
+def load_reference_face(cache, reference_path):
+    """Load and encode reference face from the given image path using cache"""
     if not os.path.exists(reference_path):
         print(f"❌ Reference image not found: {reference_path}")
         return None
     
-    img = cv2.imread(reference_path)
-    if img is None:
-        print(f"❌ Could not load image: {reference_path}")
-        return None
+    # Try to get embeddings from cache first
+    embeddings = cache.get_or_compute_embeddings(reference_path)
     
-    faces = app.get(img)
-    if not faces:
+    if not embeddings:
         print(f"❌ No face detected in reference image: {reference_path}")
         return None
     
     print(f"✓ Loaded reference face from {reference_path}")
-    return faces[0].normed_embedding
+    return embeddings[0]  # Return the first face embedding
 
 def find_matching_photos(reference_path, data_directory, threshold=0.6):
     """Find all photos in data directory where the reference person is present"""
     
-    # Initialize face analysis
-    print("Initializing face analysis...")
-    app = FaceAnalysis(name="buffalo_l")
-    app.prepare(ctx_id=-1)  # Use CPU (-1), change to 0 for GPU
+    # Initialize cache system
+    print("Initializing embedding cache...")
+    cache = EmbeddingCache()
     
     # Load reference face
     print(f"Loading reference face from {reference_path}...")
-    reference_embedding = load_reference_face(app, reference_path)
+    reference_embedding = load_reference_face(cache, reference_path)
     
     if reference_embedding is None:
         return []
@@ -60,15 +57,10 @@ def find_matching_photos(reference_path, data_directory, threshold=0.6):
         print(f"{i}/{len(image_files)}: {os.path.basename(image_path)}")
         
         try:
-            # Load and analyze the image
-            img = cv2.imread(image_path)
-            if img is None:
-                print(f"   ⚠ Could not load image: {image_path}")
-                continue
-                
-            faces = app.get(img)
+            # Get embeddings from cache or compute them
+            face_embeddings = cache.get_or_compute_embeddings(image_path)
             
-            if not faces:
+            if not face_embeddings:
                 print(f"   ⚠ No faces detected in {os.path.basename(image_path)}")
                 continue
             
@@ -76,10 +68,10 @@ def find_matching_photos(reference_path, data_directory, threshold=0.6):
             best_similarity = -1
             matching_faces = []
             
-            # print(f"   📊 Found {len(faces)} face(s) in image")
+            # print(f"   📊 Found {len(face_embeddings)} face(s) in image")
             
-            for j, face in enumerate(faces):
-                similarity = cosine_similarity(reference_embedding, face.normed_embedding)
+            for j, face_embedding in enumerate(face_embeddings):
+                similarity = cosine_similarity(reference_embedding, face_embedding)
                 print(f"      Face {j+1}: similarity = {similarity:.4f}")
                 
                 if similarity > best_similarity:
@@ -91,7 +83,7 @@ def find_matching_photos(reference_path, data_directory, threshold=0.6):
             if matching_faces:
                 matches.append({
                     'filename': os.path.basename(image_path),
-                    'path': image_path,
+                    'path': f"https://klient.fotoklaser.pl/download.php?mode=api_preview&access=oGywJNAeoELTy4k_2_KE&file={os.path.basename(image_path)}",
                     'similarity': best_similarity,
                     'matching_faces': len(matching_faces),
                     'all_similarities': matching_faces
@@ -158,5 +150,46 @@ def main():
     
     print("\n" + "=" * 60)
 
+def clear_cache():
+    """Clear all cached embeddings"""
+    cache = EmbeddingCache()
+    cache.clear_cache()
+
+def cache_stats():
+    """Show cache statistics"""
+    cache = EmbeddingCache()
+    stats = cache.get_cache_stats()
+    
+    print("=" * 60)
+    print("📊 EMBEDDING CACHE STATISTICS")
+    print("=" * 60)
+    print(f"Total cached files: {stats['total_files']}")
+    print(f"Total faces cached: {stats['total_faces']}")
+    print(f"Cache size: {stats['cache_size_mb']} MB")
+    print("=" * 60)
+
+def cleanup_cache():
+    """Remove invalid cache entries"""
+    cache = EmbeddingCache()
+    removed = cache.remove_invalid_cache_entries()
+    print(f"Cleaned up {removed} invalid cache entries")
+
 if __name__ == "__main__":
-    main()
+    import sys
+    
+    if len(sys.argv) > 1:
+        command = sys.argv[1].lower()
+        
+        if command == "clear-cache":
+            clear_cache()
+        elif command == "cache-stats":
+            cache_stats()
+        elif command == "cleanup-cache":
+            cleanup_cache()
+        else:
+            print("Unknown command. Available commands:")
+            print("  python findAll.py clear-cache    - Clear all cached embeddings")
+            print("  python findAll.py cache-stats    - Show cache statistics")
+            print("  python findAll.py cleanup-cache  - Remove invalid cache entries")
+    else:
+        main()

@@ -1,0 +1,5 @@
+POST /api/findAll
+{
+  "url": "https://klient.fotoklaser.pl/download.php?mode=api_preview&access=oGywJNAeoELTy4k_2_KE&file=demowki070.jpg",
+  "threshold": 0.6,           // Optional: similarity threshold (0.0-1.0)
+}
