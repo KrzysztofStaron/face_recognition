@@ -92,7 +92,7 @@ Notes:
   "threshold": 0.6,
   "total_scope_images": 3,
   "total_matches": 2,
-  "urls": ["https://example.com/group1.jpg"],
+  "urls": ["1.jpg", "2.jpg", "3.jpg"],
   "matches": [
     {
       "url": "https://example.com/group1.jpg",
