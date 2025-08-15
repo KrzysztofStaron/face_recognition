@@ -513,7 +513,6 @@ def init_app():
     print("Available endpoints:")
     print("🔄 POST /api/v0/embed - Pre-warm cache with image URLs")
     print("🔍 POST /api/v0/findIn - Find target in scope of images") 
-    print("🔍 POST /api/findIn - Find matches in data directory (legacy)")
     print("💚 GET /api/health - Health check")
     print("📊 GET /api/cache/stats - Get cache statistics")
     print("🧹 POST /api/cache/clear - Clear all cached embeddings")

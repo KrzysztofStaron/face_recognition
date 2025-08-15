@@ -91,7 +91,9 @@ curl http://localhost:5003/api/health
 
 - `POST /api/v0/embed` - Pre-warm cache with image URLs
 - `POST /api/v0/findIn` - Find target in scope of images
-- `POST /api/findIn` - Find matches in data directory (legacy)
+
+Special:
+
 - `GET /api/health` - Health check
 - `GET /api/cache/stats` - Cache statistics
 - `POST /api/cache/clear` - Clear cache
