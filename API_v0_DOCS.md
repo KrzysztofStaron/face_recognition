@@ -1,193 +1,258 @@
-# Face Finder API v0 Documentation
+## API v0 – przewodnik użycia
 
-## Overview
+Ten dokument opisuje, jak korzystać z API v0 do znajdowania konkretnej osoby (twarzy) w zbiorze zdjęć dostępnych pod adresami URL. Silnik wykrywa twarze i liczy wektory cech (embeddingi), a wyniki są cache’owane na dysku na podstawie hasha URL.
 
-The Face Finder API v0 provides these endpoints for face recognition tasks:
+Domyślny adres serwisu: `http://localhost:5003`
 
-1. **`/api/v0/embed`** - Pre-warm the cache by downloading and creating face embeddings for multiple images
-2. **`/api/v0/findIn`** - Find a target person in a set of scope images
-3. **`/api/v0/inspect`** - Inspect an image to list detected faces (index, bbox, score)
+### Szybki start (zalecany przepływ)
 
-## Endpoints
+- 1. Wstępnie zcache’uj obrazy: wyślij wszystkie adresy URL, z którymi będziesz pracować (zarówno `target`, jak i `scope`) do `POST /api/v0/embed`.
+- 2. (Opcjonalnie) Podejrzyj twarze w obrazie celu: użyj `POST /api/v0/inspect`, aby poznać indeksy wykrytych twarzy i wybrać `target_face`.
+- 3. Wyszukaj osobę w zbiorze: wywołaj `POST /api/v0/findIn`, przekazując `target` i `scope`, z opcjonalnymi parametrami (`threshold`, `target_face`, `include_details`, `max_results`).
 
-### POST /api/v0/embed
+---
 
-Pre-warm the cache by downloading images and creating face embeddings. Each embedding is saved in a separate file named by the hash of the URL. A companion faces metadata file (with bboxes/scores) is also created.
+## Endpointy API v0
 
-**Request Body:**
+### POST `/api/v0/embed` – wstępne cache’owanie obrazów
 
-```json
+Wczytuje obrazy spod podanych adresów URL, wykrywa twarze i zapisuje embeddingi w cache. Dzięki temu późniejsze zapytania nie muszą ponownie liczyć wektorów.
+
+- Body (JSON):
+
+```
 {
-  "urls": ["https://example.com/image1.jpg", "https://example.com/image2.jpg", "https://example.com/image3.jpg"]
+  "urls": ["https://.../obraz1.jpg", "https://.../obraz2.jpg"]
 }
 ```
 
-**Response:**
+- Przykład (curl):
 
-```json
+```
+curl -X POST "http://localhost:5003/api/v0/embed" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "urls": ["https://example.com/a.jpg", "https://example.com/b.jpg"]
+  }'
+```
+
+- Przykładowa odpowiedź (200):
+
+```
 {
   "success": true,
-  "total_urls": 3,
+  "total_urls": 2,
   "results": [
     {
-      "url": "https://example.com/image1.jpg",
+      "url": "https://example.com/a.jpg",
       "success": true,
       "cached": true,
       "num_faces": 1,
-      "cache_file": "cache/embeddings/temp_reference_abc123_embeddings.pkl"
+      "cache_file": "<ścieżka_do_pliku_cache>"
     },
     {
-      "url": "https://example.com/image2.jpg",
+      "url": "https://example.com/b.jpg",
       "success": true,
       "cached": true,
-      "num_faces": 2,
-      "cache_file": "cache/embeddings/temp_reference_def456_embeddings.pkl"
+      "num_faces": 3,
+      "cache_file": "..."
     }
   ]
 }
 ```
 
-### POST /api/v0/findIn
+---
 
-Find a target person in a set of scope images. If the target image contains multiple faces, the endpoint can search for all faces, the largest/best one, or a specific face index. The endpoint performs greedy one-to-one matching to avoid duplicate counting. It uses cached embeddings if available, or computes them on the fly. You can optionally include face details (bboxes, detection scores) in the response.
+### POST `/api/v0/inspect` – podgląd wykrytych twarzy
 
-**Request Body:**
+Zwraca listę wykrytych twarzy w obrazie (indeks, bbox, score), aby ułatwić wybór konkretnej twarzy do dopasowania.
 
-```json
-{
-  "target": "https://example.com/person.jpg",
-  "scope": ["https://example.com/group1.jpg", "https://example.com/group2.jpg", "https://example.com/group3.jpg"],
-  "threshold": 0.6,
-  "target_face": "all", // optional: "all" (default) | "largest" | "best" | index | [indices]
-  "include_details": false, // optional: include bboxes/scores
-  "max_results": 100 // optional: limit result count
-}
-```
-
-Notes:
-
-- `target_face` can be one of: "all" (default), "largest", "best", a number index (0-based), or an array of indices. Negative indices allowed.
-- `include_details: true` adds bounding boxes and detection scores to each detailed match and returns `selected_target_indices` and `target_summary` at the top level.
-
-**Parameters:**
-
-- `target` (string, required): URL of the image containing the person to find
-- `scope` (array, required): Array of URLs to search for the target person
-- `threshold` (float, optional): Similarity threshold for matching (0.0 to 1.0, default: 0.6)
-- `target_face` (optional): Which target face(s) to search with. One of:
-  - `"all"` (default): use all faces in the target image
-  - `"largest"`: face with the largest bounding box
-  - `"best"`: face with the highest detection score
-  - `number` or `number[]`: select by index(es) (0-based; negative indices allowed)
-- `include_details` (boolean, optional): Whether to include face bboxes/scores in `detailed_matches`
-- `max_results` (number, optional): Limit the number of returned matches
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "target_url": "https://example.com/person.jpg",
-  "target_faces_count": 2,
-  "threshold": 0.6,
-  "total_scope_images": 3,
-  "total_matches": 2,
-  "urls": ["1.jpg", "2.jpg", "3.jpg"],
-  "matches": [
-    {
-      "url": "https://example.com/group1.jpg",
-      "similarity": 0.8521,
-      "target_faces_found": 2,
-      "target_face_indices": [0, 1]
-    }
-  ]
-}
-```
-
-**Response Fields:**
-
-- `target_faces_count`: Number of faces detected in the target image
-- `target_faces_found`: Number of target faces found in this scope image
-- `target_face_indices`: Array of target face indices that were found
-- If `include_details` is true: `face_matches` is included per image with entries containing `target_face`, `scope_face`, `similarity`, and optionally `target_bbox`, `target_score`, `scope_bbox`, `scope_score`.
-- `urls`: Array of scope image URLs where the target face(s) were detected (most important for consumers)
-- If `include_details` is true (top-level):
-  - `selected_target_indices`: Which target faces were selected for matching
-  - `target_summary`: For each detected target face, include `index`, `bbox`, `score`
-
-### POST /api/v0/inspect
-
-Inspect an image to list detected faces and their metadata so the client can choose a specific face index for subsequent calls.
-
-**Request Body:**
+- Body (JSON):
 
 ```
-{ "url": "https://example.com/image.jpg" }
+{ "url": "https://example.com/target.jpg" }
 ```
 
-**Response:**
+- Przykład (curl):
+
+```
+curl -X POST "http://localhost:5003/api/v0/inspect" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://example.com/target.jpg"
+  }'
+```
+
+- Przykładowa odpowiedź (200):
 
 ```
 {
   "success": true,
-  "url": "https://example.com/image.jpg",
+  "url": "https://example.com/target.jpg",
   "faces_count": 2,
   "faces": [
-    { "index": 0, "bbox": [x1, y1, x2, y2], "score": 0.998 },
-    { "index": 1, "bbox": [x1, y1, x2, y2], "score": 0.992 }
+    { "index": 0, "bbox": [x1, y1, x2, y2], "score": 0.99 },
+    { "index": 1, "bbox": [x1, y1, x2, y2], "score": 0.95 }
   ]
 }
 ```
 
-## Typical Workflow
+---
 
-1. **Pre-warm cache** (optional but recommended for better performance):
+### POST `/api/v0/findIn` – wyszukiwanie osoby w zbiorze obrazów
 
-   ```bash
-   curl -X POST http://localhost:5003/api/v0/embed \
-     -H "Content-Type: application/json" \
-     -d '{"urls": ["url1", "url2", "url3"]}'
-   ```
+Porównuje twarz(e) z obrazu `target` z twarzami na obrazach w `scope` i zwraca uporządkowane dopasowania.
 
-2. **Find person in images**:
-   ```bash
-   curl -X POST http://localhost:5003/api/v0/findIn \
-     -H "Content-Type: application/json" \
-     -d '{
-       "target": "https://example.com/person.jpg",
-       "scope": ["url1", "url2", "url3"],
-       "threshold": 0.6
-     }'
-   ```
+- Body (JSON):
 
-## Caching
-
-- Embeddings are cached using a hash of the URL as the filename
-- Embeddings cache file: `cache/embeddings/temp_reference_{url_hash}_embeddings.pkl`
-- Faces metadata cache file (bbox/score/landmarks + embedding): `cache/embeddings/temp_reference_{url_hash}_faces.pkl`
-- Once an image is cached, subsequent requests will use the cached embeddings
-- The cache persists across server restarts
-
-## Error Handling
-
-All endpoints return appropriate HTTP status codes:
-
-- `200 OK` - Successful request
-- `400 Bad Request` - Invalid request parameters
-- `500 Internal Server Error` - Server error
-
-Error responses include a descriptive message:
-
-```json
+```
 {
-  "success": false,
-  "error": "Description of the error"
+  "target": "https://example.com/target.jpg",
+  "scope": [
+    "https://example.com/photo1.jpg",
+    "https://example.com/photo2.jpg"
+  ],
+  "threshold": 0.6,
+  "target_face": "all",
+  "include_details": false,
+  "max_results": 50
 }
 ```
 
-## Performance Tips
+- Przykład (curl):
 
-1. Use `/api/v0/embed` to pre-warm the cache before calling `/api/v0/findIn`
-2. Cached embeddings significantly improve response times
-3. Higher thresholds (e.g., 0.7-0.8) give more accurate matches but fewer results
-4. Lower thresholds (e.g., 0.4-0.5) give more results but may include false positives
+```
+curl -X POST "http://localhost:5003/api/v0/findIn" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "target": "https://example.com/target.jpg",
+    "scope": ["https://example.com/p1.jpg", "https://example.com/p2.jpg"],
+    "threshold": 0.65,
+    "target_face": "best",
+    "include_details": true,
+    "max_results": 100
+  }'
+```
+
+- Przykładowa odpowiedź (200):
+
+```
+{
+  "success": true,
+  "target_url": "https://example.com/target.jpg",
+  "target_faces_count": 2,
+  "threshold": 0.65,
+  "total_scope_images": 2,
+  "total_matches": 2,
+  "urls": ["https://example.com/p1.jpg", "https://example.com/p2.jpg"],
+  "matches": [
+    {
+      "url": "https://example.com/p1.jpg",
+      "similarity": 0.84,
+      "target_faces_found": 1,
+      "target_face_indices": [0],
+      "face_matches": [
+        {
+          "target_face": 0,
+          "scope_face": 1,
+          "similarity": 0.84,
+          "target_bbox": [x1, y1, x2, y2],
+          "target_score": 0.99,
+          "scope_bbox": [x1, y1, x2, y2],
+          "scope_score": 0.97
+        }
+      ],
+      "scope_faces_count": 3
+    },
+    {
+      "url": "https://example.com/p2.jpg",
+      "similarity": 0.66,
+      "target_faces_found": 1,
+      "target_face_indices": [1]
+    }
+  ],
+  "selected_target_indices": [0, 1],
+  "target_summary": [
+    { "index": 0, "bbox": [x1, y1, x2, y2], "score": 0.99 },
+    { "index": 1, "bbox": [x1, y1, x2, y2], "score": 0.95 }
+  ]
+}
+```
+
+> Pola `face_matches`, `scope_faces_count`, `selected_target_indices` i `target_summary` pojawiają się, gdy `include_details` = `true`.
+
+---
+
+## Dodatkowe endpointy pomocnicze
+
+### GET `/api/health`
+
+Szybki test zdrowia usługi.
+
+```
+curl "http://localhost:5003/api/health"
+```
+
+### GET `/api/cache/stats`
+
+Statystyki cache (np. liczba wpisów).
+
+### POST `/api/cache/clear`
+
+Czyści cały cache embeddingów.
+
+### POST `/api/cache/cleanup`
+
+Usuwa nieprawidłowe wpisy cache.
+
+---
+
+## Parametry i wskazówki
+
+- **threshold (0..1, domyślnie 0.6)**: minimalne podobieństwo kosinusowe, aby uznać parę twarzy za dopasowaną. 0.5–0.6 to dobry start.
+- **target_face**:
+  - `"all"` – użyj wszystkich twarzy,
+  - `"largest"` – największa twarz (po polu bbox),
+  - `"best"` – twarz z najwyższym `det_score`,
+  - liczba (np. `0`) lub lista liczb (np. `[0,2]`) – konkretne indeksy.
+- **include_details (bool)**: jeśli `true`, odpowiedzi zawierają bbox-y, score-y i parowania twarz–twarz.
+- **max_results (int)**: ogranicza liczbę zwracanych wyników.
+- **Cache**: Jeśli chcesz przyśpieszyć wyszukiwanie to wrzuc zdjęcia do `POST /api/v0/embed`
+
+---
+
+## Obsługa błędów
+
+Format błędu:
+
+```
+{
+  "error": "Opis błędu",
+  "success": false
+}
+```
+
+Kody HTTP:
+
+- `400` – niepoprawne żądanie (brak pól, zły typ danych, threshold poza zakresem),
+- `500` – błąd wewnętrzny (problem z pobraniem obrazu, przetwarzaniem, I/O).
+
+---
+
+## Uruchomienie i uwagi praktyczne
+
+- Serwis nasłuchuje na porcie `5003`.
+- Włączone jest CORS (można wywoływać API z przeglądarki podczas developmentu).
+- Dla dużych obrazów czasy przetwarzania mogą wzrosnąć; jakość zdjęć wpływa na stabilność wyników.
+
+---
+
+## Notatka
+
+Jeśli pracujesz na plikach lokalnych (katalog `data/`), istnieje starszy endpoint `POST /api/findIn` działający na lokalnym katalogu. Ten dokument opisuje ścieżki `api/v0/*`, oparte na adresach URL.
+
+---
+
+## TL;DR (rekomendacja)
+
+Zaraz po wgraniu zdjęć na serwer zrób cache przez `POST /api/v0/embed`. Dzięki temu w `POST /api/v0/findIn` embeddingi będą już policzone i zapisane na dysku (hash URL), co znacząco przyspiesza wyszukiwanie.
