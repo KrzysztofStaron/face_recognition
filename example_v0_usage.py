@@ -73,23 +73,7 @@ def example_find_person():
         print(f"   Searched {result['total_scope_images']} images")
         print(f"   Found {result['total_matches']} matches with threshold {result['threshold']}")
         
-        if result['matches']:
-            print("\n   Matches:")
-            for match in result['matches']:
-                filename = match['url'].split('file=')[-1]
-                print(f"   • {filename} - similarity: {match['similarity']}")
-                if result.get('target_faces_count', 1) > 1:
-                    print(f"     Found {match.get('target_faces_found', 1)} of {result['target_faces_count']} target faces")
-                if match['matching_faces'] > 1:
-                    print(f"     {match['matching_faces']} total face matches in this image")
-                
-                # Show detailed matches if available
-                if 'detailed_matches' in match and len(match['detailed_matches']) > 0:
-                    print(f"     Details:")
-                    for detail in match['detailed_matches']:
-                        print(f"       Target face {detail['target_face']} → Scope face {detail['scope_face']} (similarity: {detail['similarity']})")
-        else:
-            print("\n   No matches found")
+        print(result)
     else:
         print(f"❌ Error: {response.status_code}")
         print(response.json())

@@ -339,6 +339,51 @@ class EmbeddingCache:
             print(f"Warning: Failed to cache embeddings for URL {url}: {e}")
             return False
     
+    def _get_url_faces_cache_file(self, url):
+        """Get cache file path for URL face metadata (embeddings + bbox, scores)"""
+        url_hash = self._get_url_hash(url)
+        return os.path.join(self.embeddings_dir, f"temp_reference_{url_hash}_faces.pkl")
+    
+    def get_url_faces(self, url):
+        """Get face metadata list from cache for a URL. Fallback to embeddings-only cache if needed."""
+        faces_cache_file = self._get_url_faces_cache_file(url)
+        if os.path.exists(faces_cache_file):
+            try:
+                with open(faces_cache_file, 'rb') as f:
+                    return pickle.load(f)
+            except:
+                pass
+        
+        # Fallback: load embeddings-only cache and wrap as face dicts (no bbox available)
+        embeddings = self.get_url_embeddings(url)
+        if embeddings is None:
+            return None
+        
+        faces = []
+        try:
+            for emb in embeddings:
+                faces.append({
+                    'embedding': emb,
+                    'bbox': None,
+                    'kps': None,
+                    'det_score': None
+                })
+            return faces
+        except Exception as e:
+            print(f"Warning: Failed to adapt embeddings to faces for URL {url}: {e}")
+            return None
+    
+    def cache_url_faces(self, url, faces):
+        """Cache face metadata list for a URL"""
+        faces_cache_file = self._get_url_faces_cache_file(url)
+        try:
+            with open(faces_cache_file, 'wb') as f:
+                pickle.dump(faces, f)
+            return True
+        except Exception as e:
+            print(f"Warning: Failed to cache face metadata for URL {url}: {e}")
+            return False
+    
     def get_or_compute_url_embeddings(self, url, image_path):
         """Get embeddings from cache or compute them for a URL"""
         # Try to get from cache first
@@ -365,6 +410,59 @@ class EmbeddingCache:
             
         except Exception as e:
             print(f"Error computing embeddings for URL {url}: {e}")
+            return []
+    
+    def get_or_compute_url_faces(self, url, image_path):
+        """Get face metadata list (embedding + bbox + score) from cache or compute for a URL.
+        Also ensures embeddings-only cache is created for compatibility.
+        """
+        # Try to get faces from cache first
+        faces = self.get_url_faces(url)
+        if faces is not None:
+            return faces
+        
+        # Not in cache, compute
+        self._init_face_analysis()
+        try:
+            img = cv2.imread(image_path)
+            if img is None:
+                print(f"Warning: Could not load image from {image_path}")
+                return []
+            
+            detected_faces = self.app.get(img)
+            faces = []
+            embeddings = []
+            for face in detected_faces:
+                try:
+                    bbox = face.bbox.tolist() if hasattr(face, 'bbox') else None
+                except Exception:
+                    bbox = None
+                try:
+                    kps = face.kps.tolist() if hasattr(face, 'kps') else None
+                except Exception:
+                    kps = None
+                try:
+                    det_score = float(face.det_score) if hasattr(face, 'det_score') else None
+                except Exception:
+                    det_score = None
+                emb = face.normed_embedding
+                faces.append({
+                    'embedding': emb,
+                    'bbox': bbox,
+                    'kps': kps,
+                    'det_score': det_score
+                })
+                embeddings.append(emb)
+            
+            # Cache both faces metadata and plain embeddings for compatibility
+            self.cache_url_faces(url, faces)
+            # Only write embeddings cache if not already present
+            if not self.is_url_cached(url):
+                self.cache_url_embeddings(url, embeddings)
+            
+            return faces
+        except Exception as e:
+            print(f"Error computing face metadata for URL {url}: {e}")
             return []
     
     def migrate_old_cache_format(self):

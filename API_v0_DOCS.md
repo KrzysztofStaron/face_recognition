@@ -2,16 +2,17 @@
 
 ## Overview
 
-The Face Finder API v0 provides two main endpoints for face recognition tasks:
+The Face Finder API v0 provides these endpoints for face recognition tasks:
 
 1. **`/api/v0/embed`** - Pre-warm the cache by downloading and creating face embeddings for multiple images
 2. **`/api/v0/findIn`** - Find a target person in a set of scope images
+3. **`/api/v0/inspect`** - Inspect an image to list detected faces (index, bbox, score)
 
 ## Endpoints
 
 ### POST /api/v0/embed
 
-Pre-warm the cache by downloading images and creating face embeddings. Each embedding is saved in a separate file named by the hash of the URL.
+Pre-warm the cache by downloading images and creating face embeddings. Each embedding is saved in a separate file named by the hash of the URL. A companion faces metadata file (with bboxes/scores) is also created.
 
 **Request Body:**
 
@@ -48,7 +49,7 @@ Pre-warm the cache by downloading images and creating face embeddings. Each embe
 
 ### POST /api/v0/findIn
 
-Find a target person in a set of scope images. If the target image contains multiple faces, the endpoint will search for ALL faces in the target image across the scope. This endpoint will use cached embeddings if available, or compute them on the fly.
+Find a target person in a set of scope images. If the target image contains multiple faces, the endpoint can search for all faces, the largest/best one, or a specific face index. The endpoint performs greedy one-to-one matching to avoid duplicate counting. It uses cached embeddings if available, or computes them on the fly. You can optionally include face details (bboxes, detection scores) in the response.
 
 **Request Body:**
 
@@ -56,15 +57,30 @@ Find a target person in a set of scope images. If the target image contains mult
 {
   "target": "https://example.com/person.jpg",
   "scope": ["https://example.com/group1.jpg", "https://example.com/group2.jpg", "https://example.com/group3.jpg"],
-  "threshold": 0.6
+  "threshold": 0.6,
+  "target_face": "all", // optional: "all" (default) | "largest" | "best" | index | [indices]
+  "include_details": false, // optional: include bboxes/scores
+  "max_results": 100 // optional: limit result count
 }
 ```
+
+Notes:
+
+- `target_face` can be one of: "all" (default), "largest", "best", a number index (0-based), or an array of indices. Negative indices allowed.
+- `include_details: true` adds bounding boxes and detection scores to each detailed match and returns `selected_target_indices` and `target_summary` at the top level.
 
 **Parameters:**
 
 - `target` (string, required): URL of the image containing the person to find
 - `scope` (array, required): Array of URLs to search for the target person
 - `threshold` (float, optional): Similarity threshold for matching (0.0 to 1.0, default: 0.6)
+- `target_face` (optional): Which target face(s) to search with. One of:
+  - `"all"` (default): use all faces in the target image
+  - `"largest"`: face with the largest bounding box
+  - `"best"`: face with the highest detection score
+  - `number` or `number[]`: select by index(es) (0-based; negative indices allowed)
+- `include_details` (boolean, optional): Whether to include face bboxes/scores in `detailed_matches`
+- `max_results` (number, optional): Limit the number of returned matches
 
 **Response:**
 
@@ -76,6 +92,7 @@ Find a target person in a set of scope images. If the target image contains mult
   "threshold": 0.6,
   "total_scope_images": 3,
   "total_matches": 2,
+  "urls": ["https://example.com/group1.jpg"],
   "matches": [
     {
       "url": "https://example.com/group1.jpg",
@@ -86,7 +103,7 @@ Find a target person in a set of scope images. If the target image contains mult
       "all_similarities": [0.8521, 0.7234],
       "detailed_matches": [
         {
-          "target_face": 0,
+          "target_face": 1,
           "scope_face": 1,
           "similarity": 0.8521
         },
@@ -107,6 +124,35 @@ Find a target person in a set of scope images. If the target image contains mult
 - `target_faces_found`: Number of target faces found in this scope image
 - `target_face_indices`: Array of target face indices that were found
 - `detailed_matches`: Detailed breakdown showing which target face matched which scope face
+  - If `include_details` is true, each entry also contains `target_bbox`, `target_score`, `scope_bbox`, `scope_score`
+- `urls`: Array of scope image URLs where the target face(s) were detected (most important for consumers)
+- If `include_details` is true (top-level):
+  - `selected_target_indices`: Which target faces were selected for matching
+  - `target_summary`: For each detected target face, include `index`, `bbox`, `score`
+
+### POST /api/v0/inspect
+
+Inspect an image to list detected faces and their metadata so the client can choose a specific face index for subsequent calls.
+
+**Request Body:**
+
+```
+{ "url": "https://example.com/image.jpg" }
+```
+
+**Response:**
+
+```
+{
+  "success": true,
+  "url": "https://example.com/image.jpg",
+  "faces_count": 2,
+  "faces": [
+    { "index": 0, "bbox": [x1, y1, x2, y2], "score": 0.998 },
+    { "index": 1, "bbox": [x1, y1, x2, y2], "score": 0.992 }
+  ]
+}
+```
 
 ## Typical Workflow
 
@@ -132,7 +178,8 @@ Find a target person in a set of scope images. If the target image contains mult
 ## Caching
 
 - Embeddings are cached using a hash of the URL as the filename
-- Cache files are stored in `cache/embeddings/temp_reference_{url_hash}_embeddings.pkl`
+- Embeddings cache file: `cache/embeddings/temp_reference_{url_hash}_embeddings.pkl`
+- Faces metadata cache file (bbox/score/landmarks + embedding): `cache/embeddings/temp_reference_{url_hash}_faces.pkl`
 - Once an image is cached, subsequent requests will use the cached embeddings
 - The cache persists across server restarts
 
