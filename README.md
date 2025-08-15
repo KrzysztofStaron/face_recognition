@@ -75,9 +75,8 @@ Configuration is in `gunicorn.conf.py`. Key settings:
 
 ### Environment Setup
 
-1. **Data Directory**: Ensure `data/` directory exists with images to search
-2. **Cache Directory**: `cache/embeddings/` will be created automatically
-3. **Permissions**: Make sure the app has read/write access to cache directory
+1. **Cache Directory**: `cache/embeddings/` will be created automatically
+2. **Permissions**: Make sure the app has read/write access to cache directory
 
 ### Health Check
 
