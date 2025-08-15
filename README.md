@@ -111,3 +111,58 @@ Special:
 2. **Memory issues**: Reduce number of workers in configuration
 3. **Timeout errors**: Increase timeout value for large images
 4. **Permission errors**: Check file permissions for cache directory
+
+## Project files and purpose
+
+- `main.py`: Flask API application.
+
+  - Exposes endpoints: `POST /api/v0/embed`, `POST /api/v0/findIn`, `POST /api/v0/inspect`, `GET /api/health`, and cache utilities `GET /api/cache/stats`, `POST /api/cache/clear`, `POST /api/cache/cleanup`.
+  - Contains helpers like `download_image_from_url`, target face selection, and cosine similarity.
+  - Prints available endpoints on startup via `init_app()`.
+
+- `embedding_cache.py`: Embedding/cache management.
+
+  - Class `EmbeddingCache` handles computing and caching face embeddings and face metadata for both local files and URLs.
+  - Supports metadata persistence, stats, clear/cleanup, and migration from an old cache format.
+
+- `findAll.py`: Legacy/local dataset utilities and CLI.
+
+  - Functions to search a local `data/` folder for matches: `find_matching_photos`, `load_reference_face`.
+  - CLI commands: `clear-cache`, `cache-stats`, `cleanup-cache`, `migrate-cache`.
+
+- `example_v0_usage.py`: Example client usage of the v0 API.
+
+  - Demonstrates pre-warming cache, single-target search, and batch searches via HTTP.
+
+- `waitress_config.py`: Production entrypoint for Windows/cross‑platform (Waitress).
+
+  - Reads `HOST`, `PORT`, `THREADS` env vars and serves `main.app` with Waitress.
+  - Ensures `cache/embeddings/` and `data/` directories exist.
+
+- `wsgi.py`: Minimal WSGI entry that exposes `app` for servers (e.g., Gunicorn/Waitress).
+
+- `gunicorn.conf.py`: Gunicorn configuration for Linux/macOS deployments.
+
+  - Binds `0.0.0.0:5003`, sets worker count/timeouts, and optimizes tmp dir (`/dev/shm`).
+
+- `start_production.bat`: Windows startup script.
+
+  - Activates `venv` (if present), installs `requirements.txt`, creates dirs, and runs `waitress_config.py`.
+
+- `start_production.sh`: Unix-like startup script.
+
+  - Activates `venv` (if present), installs dependencies, creates dirs, and starts Gunicorn (or Waitress if on Windows environment).
+
+- `API_v0_DOCS.md`: Detailed API v0 usage guide (Polish) with request/response examples.
+
+- `API_v0_DOCS.pdf`: PDF version of the API v0 documentation.
+
+- `doc.txt`: Example payload for the legacy `POST /api/findAll` (local files) flow.
+
+- `requirements.txt`: Python dependencies.
+
+- `eval/`: Sample images for quick evaluation/demos.
+
+- `out.json`: Sample output captured from a previous run.
+
+- `README.md`: This deployment and operations guide.
