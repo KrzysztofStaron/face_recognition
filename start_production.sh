@@ -6,7 +6,7 @@ echo "🚀 Starting Face Finder API..."
 # Activate virtual environment
 if [ -d "/root/face_recognition/flask_test_env" ]; then
     echo "📦 Activating virtual environment..."
-    source /root/face_recognition/flask_test_env/bin/activate
+    source /root/flask_test_env/bin/activate
 fi
 
 # Create necessary directories
