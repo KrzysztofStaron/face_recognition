@@ -48,7 +48,7 @@ def example_find_person():
     print("-" * 50)
     
     # The person we want to find
-    target_person = "https://klient.fotoklaser.pl/download.php?mode=api_preview&access=oGywJNAeoELTy4k_2_KE&file=demowki084.jpg"
+    target_person = "https://klient.fotoklaser.pl/download.php?mode=api_preview&access=oGywJNAeoELTy4k_2_KE&file=demowki089.jpg"
     
     # Images to search in
     search_scope = [
@@ -78,8 +78,16 @@ def example_find_person():
             for match in result['matches']:
                 filename = match['url'].split('file=')[-1]
                 print(f"   • {filename} - similarity: {match['similarity']}")
+                if result.get('target_faces_count', 1) > 1:
+                    print(f"     Found {match.get('target_faces_found', 1)} of {result['target_faces_count']} target faces")
                 if match['matching_faces'] > 1:
-                    print(f"     (Group photo with {match['matching_faces']} matching faces)")
+                    print(f"     {match['matching_faces']} total face matches in this image")
+                
+                # Show detailed matches if available
+                if 'detailed_matches' in match and len(match['detailed_matches']) > 0:
+                    print(f"     Details:")
+                    for detail in match['detailed_matches']:
+                        print(f"       Target face {detail['target_face']} → Scope face {detail['scope_face']} (similarity: {detail['similarity']})")
         else:
             print("\n   No matches found")
     else:

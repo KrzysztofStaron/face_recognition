@@ -279,8 +279,7 @@ def find_in_scope():
                     'success': False
                 }), 400
             
-            # Use first face from target
-            target_embedding = target_embeddings[0]
+            print(f"Found {len(target_embeddings)} face(s) in target image")
             
             # Process each scope image
             matches = []
@@ -297,26 +296,53 @@ def find_in_scope():
                     if not scope_embeddings:
                         continue
                     
-                    # Check each face in scope against target
+                    # Check each face in scope against ALL target faces
                     best_similarity = -1
                     matching_faces = []
+                    target_face_matches = {}  # Track which target face matched
                     
-                    for face_embedding in scope_embeddings:
+                    for scope_face_idx, scope_face_embedding in enumerate(scope_embeddings):
                         from findAll import cosine_similarity
-                        similarity = cosine_similarity(target_embedding, face_embedding)
                         
-                        if similarity > best_similarity:
-                            best_similarity = similarity
-                        
-                        if similarity >= threshold:
-                            matching_faces.append(similarity)
+                        # Compare this scope face against all target faces
+                        for target_face_idx, target_embedding in enumerate(target_embeddings):
+                            similarity = cosine_similarity(target_embedding, scope_face_embedding)
+                            
+                            if similarity > best_similarity:
+                                best_similarity = similarity
+                            
+                            if similarity >= threshold:
+                                matching_faces.append({
+                                    'similarity': similarity,
+                                    'target_face_index': target_face_idx,
+                                    'scope_face_index': scope_face_idx
+                                })
+                                
+                                # Track best match for each target face
+                                if target_face_idx not in target_face_matches or similarity > target_face_matches[target_face_idx]['similarity']:
+                                    target_face_matches[target_face_idx] = {
+                                        'similarity': similarity,
+                                        'scope_face_index': scope_face_idx
+                                    }
                     
                     if matching_faces:
+                        # Create summary of which target faces were found
+                        found_target_faces = list(target_face_matches.keys())
+                        
                         matches.append({
                             'url': scope_url,
                             'similarity': round(float(best_similarity), 4),
                             'matching_faces': len(matching_faces),
-                            'all_similarities': [round(float(s), 4) for s in matching_faces]
+                            'target_faces_found': len(found_target_faces),
+                            'target_face_indices': found_target_faces,
+                            'all_similarities': [round(float(match['similarity']), 4) for match in matching_faces],
+                            'detailed_matches': [
+                                {
+                                    'target_face': match['target_face_index'],
+                                    'scope_face': match['scope_face_index'],
+                                    'similarity': round(float(match['similarity']), 4)
+                                } for match in matching_faces
+                            ]
                         })
                         
                 finally:
@@ -333,6 +359,7 @@ def find_in_scope():
             return jsonify({
                 'success': True,
                 'target_url': target_url,
+                'target_faces_count': len(target_embeddings),
                 'threshold': threshold,
                 'total_scope_images': len(scope_urls),
                 'total_matches': len(matches),

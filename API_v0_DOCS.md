@@ -48,7 +48,7 @@ Pre-warm the cache by downloading images and creating face embeddings. Each embe
 
 ### POST /api/v0/findIn
 
-Find a target person in a set of scope images. This endpoint will use cached embeddings if available, or compute them on the fly.
+Find a target person in a set of scope images. If the target image contains multiple faces, the endpoint will search for ALL faces in the target image across the scope. This endpoint will use cached embeddings if available, or compute them on the fly.
 
 **Request Body:**
 
@@ -72,6 +72,7 @@ Find a target person in a set of scope images. This endpoint will use cached emb
 {
   "success": true,
   "target_url": "https://example.com/person.jpg",
+  "target_faces_count": 2,
   "threshold": 0.6,
   "total_scope_images": 3,
   "total_matches": 2,
@@ -79,18 +80,33 @@ Find a target person in a set of scope images. This endpoint will use cached emb
     {
       "url": "https://example.com/group1.jpg",
       "similarity": 0.8521,
-      "matching_faces": 1,
-      "all_similarities": [0.8521]
-    },
-    {
-      "url": "https://example.com/group3.jpg",
-      "similarity": 0.7234,
-      "matching_faces": 1,
-      "all_similarities": [0.7234]
+      "matching_faces": 2,
+      "target_faces_found": 2,
+      "target_face_indices": [0, 1],
+      "all_similarities": [0.8521, 0.7234],
+      "detailed_matches": [
+        {
+          "target_face": 0,
+          "scope_face": 1,
+          "similarity": 0.8521
+        },
+        {
+          "target_face": 1,
+          "scope_face": 2,
+          "similarity": 0.7234
+        }
+      ]
     }
   ]
 }
 ```
+
+**Response Fields:**
+
+- `target_faces_count`: Number of faces detected in the target image
+- `target_faces_found`: Number of target faces found in this scope image
+- `target_face_indices`: Array of target face indices that were found
+- `detailed_matches`: Detailed breakdown showing which target face matched which scope face
 
 ## Typical Workflow
 
