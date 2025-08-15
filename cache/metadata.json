@@ -296,7 +296,7 @@
   "e3b4c3e394e1608af8e726e61e8c0da4": {
     "file_path": "data\\demowki049.jpg",
     "file_hash": "90e838c5aba45c78969ca67d9ace2d9c",
-    "cached_at": "2025-08-14T23:43:30.547114",
+    "cached_at": "2025-08-15T05:40:45.153449",
     "num_faces": 1
   },
   "7409bab03901626df27c73ba81a4a899": {
@@ -879,6 +879,12 @@
     "file_path": "C:\\Users\\kisie\\AppData\\Local\\Temp\\temp_reference_8ef7cbea63a14b33b6d9f5cf1aadc263.jpg",
     "file_hash": "5650fe828ac37e6cf3b00f59032beaa1",
     "cached_at": "2025-08-14T23:48:48.423342",
+    "num_faces": 1
+  },
+  "efcddb2aab92efc67dffe6d3f1b03bd3": {
+    "file_path": "eval/person_b.jpg",
+    "file_hash": "5650fe828ac37e6cf3b00f59032beaa1",
+    "cached_at": "2025-08-15T05:38:12.021008",
     "num_faces": 1
   }
 }
