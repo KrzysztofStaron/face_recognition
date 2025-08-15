@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BASE_URL = "http://localhost:5003"
+BASE_URL = "http://75.119.154.215:5003"
 
 def example_pre_warm_cache():
     """Example: Pre-warm cache with multiple images"""

@@ -1,17 +1,13 @@
-#!/bin/bash
+  GNU nano 7.2                                      ./start_production.sh                                               #!/bin/bash
 
 # Face Finder API - Production Startup Script
 echo "🚀 Starting Face Finder API..."
 
-# Activate virtual environment if it exists
-if [ -d "venv" ]; then
+# Activate virtual environment
+if [ -d "/root/face_recognition/flask_test_env" ]; then
     echo "📦 Activating virtual environment..."
-    source venv/bin/activate
+    source /root/face_recognition/flask_test_env/bin/activate
 fi
-
-# Install requirements if needed
-echo "📥 Checking dependencies..."
-pip install -r requirements.txt
 
 # Create necessary directories
 mkdir -p cache/embeddings
@@ -23,5 +19,5 @@ if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OS" == "Windows_NT" ]]; 
     python waitress_config.py
 else
     echo "🌟 Starting Gunicorn server (Unix)..."
-    gunicorn -c gunicorn.conf.py wsgi:app
+    /root/flask_test_env/bin/gunicorn -c gunicorn.conf.py wsgi:app
 fi
