@@ -301,6 +301,72 @@ class EmbeddingCache:
         
         return total_removed
     
+    def _get_url_hash(self, url):
+        """Calculate SHA256 hash of URL for unique identification"""
+        return hashlib.sha256(url.encode()).hexdigest()[:16]
+    
+    def _get_url_cache_file(self, url):
+        """Get cache file path for a URL"""
+        url_hash = self._get_url_hash(url)
+        return os.path.join(self.embeddings_dir, f"temp_reference_{url_hash}_embeddings.pkl")
+    
+    def is_url_cached(self, url):
+        """Check if embeddings for this URL are cached"""
+        cache_file = self._get_url_cache_file(url)
+        return os.path.exists(cache_file)
+    
+    def get_url_embeddings(self, url):
+        """Get embeddings from cache for a URL"""
+        cache_file = self._get_url_cache_file(url)
+        if not os.path.exists(cache_file):
+            return None
+        
+        try:
+            with open(cache_file, 'rb') as f:
+                return pickle.load(f)
+        except:
+            return None
+    
+    def cache_url_embeddings(self, url, embeddings):
+        """Cache embeddings for a URL"""
+        cache_file = self._get_url_cache_file(url)
+        
+        try:
+            with open(cache_file, 'wb') as f:
+                pickle.dump(embeddings, f)
+            return True
+        except Exception as e:
+            print(f"Warning: Failed to cache embeddings for URL {url}: {e}")
+            return False
+    
+    def get_or_compute_url_embeddings(self, url, image_path):
+        """Get embeddings from cache or compute them for a URL"""
+        # Try to get from cache first
+        embeddings = self.get_url_embeddings(url)
+        if embeddings is not None:
+            return embeddings
+        
+        # Not in cache, compute embeddings
+        self._init_face_analysis()
+        
+        try:
+            img = cv2.imread(image_path)
+            if img is None:
+                print(f"Warning: Could not load image from {image_path}")
+                return []
+            
+            faces = self.app.get(img)
+            embeddings = [face.normed_embedding for face in faces]
+            
+            # Cache the results
+            self.cache_url_embeddings(url, embeddings)
+            
+            return embeddings
+            
+        except Exception as e:
+            print(f"Error computing embeddings for URL {url}: {e}")
+            return []
+    
     def migrate_old_cache_format(self):
         """Migrate from old hash-based cache format to new basename format"""
         print("Checking for old cache format to migrate...")

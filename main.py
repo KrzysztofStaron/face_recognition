@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import requests
 import cv2
 import numpy as np
@@ -10,6 +11,7 @@ from insightface.app import FaceAnalysis
 from embedding_cache import EmbeddingCache
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes and origins
 
 def download_image_from_url(url):
     """Download image from URL and save to temporary file"""
@@ -32,7 +34,7 @@ def download_image_from_url(url):
     except Exception as e:
         raise Exception(f"Failed to download image: {str(e)}")
 
-@app.route('/api/findAll', methods=['POST'])
+@app.route('/api/findIn', methods=['POST'])
 def find_all():
     """API endpoint to find all photos containing a person from a reference URL"""
     try:
@@ -159,13 +161,207 @@ def cleanup_cache():
             'success': False
         }), 500
 
+@app.route('/api/v0/embed', methods=['POST'])
+def embed_images():
+    """Pre-warm cache by downloading and creating embeddings for multiple images"""
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        
+        if not data or 'urls' not in data:
+            return jsonify({
+                'error': 'Missing required field: urls',
+                'success': False
+            }), 400
+        
+        urls = data['urls']
+        if not isinstance(urls, list):
+            return jsonify({
+                'error': 'urls must be an array',
+                'success': False
+            }), 400
+        
+        # Initialize cache
+        cache = EmbeddingCache()
+        results = []
+        
+        for url in urls:
+            temp_image_path = None
+            try:
+                # Download image
+                temp_image_path = download_image_from_url(url)
+                
+                # Get or compute embeddings (will cache automatically)
+                embeddings = cache.get_or_compute_url_embeddings(url, temp_image_path)
+                
+                results.append({
+                    'url': url,
+                    'success': True,
+                    'cached': True,
+                    'num_faces': len(embeddings) if embeddings else 0,
+                    'cache_file': cache._get_url_cache_file(url)
+                })
+                
+            except Exception as e:
+                results.append({
+                    'url': url,
+                    'success': False,
+                    'error': str(e)
+                })
+            finally:
+                # Clean up temporary file
+                if temp_image_path and os.path.exists(temp_image_path):
+                    try:
+                        os.remove(temp_image_path)
+                    except:
+                        pass
+        
+        return jsonify({
+            'success': True,
+            'total_urls': len(urls),
+            'results': results
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'success': False
+        }), 500
+
+@app.route('/api/v0/findIn', methods=['POST'])
+def find_in_scope():
+    """Find target person in a scope of images"""
+    try:
+        # Get JSON data from request
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({
+                'error': 'Missing request body',
+                'success': False
+            }), 400
+        
+        if 'scope' not in data or 'target' not in data:
+            return jsonify({
+                'error': 'Missing required fields: scope and target',
+                'success': False
+            }), 400
+        
+        scope_urls = data['scope']
+        target_url = data['target']
+        threshold = data.get('threshold', 0.6)
+        
+        if not isinstance(scope_urls, list):
+            return jsonify({
+                'error': 'scope must be an array of URLs',
+                'success': False
+            }), 400
+        
+        # Validate threshold
+        if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
+            return jsonify({
+                'error': 'Threshold must be a number between 0 and 1',
+                'success': False
+            }), 400
+        
+        # Initialize cache
+        cache = EmbeddingCache()
+        
+        # Download and get embeddings for target
+        target_temp_path = None
+        try:
+            target_temp_path = download_image_from_url(target_url)
+            target_embeddings = cache.get_or_compute_url_embeddings(target_url, target_temp_path)
+            
+            if not target_embeddings:
+                return jsonify({
+                    'error': 'No face detected in target image',
+                    'success': False
+                }), 400
+            
+            # Use first face from target
+            target_embedding = target_embeddings[0]
+            
+            # Process each scope image
+            matches = []
+            
+            for scope_url in scope_urls:
+                scope_temp_path = None
+                try:
+                    # Download scope image
+                    scope_temp_path = download_image_from_url(scope_url)
+                    
+                    # Get embeddings
+                    scope_embeddings = cache.get_or_compute_url_embeddings(scope_url, scope_temp_path)
+                    
+                    if not scope_embeddings:
+                        continue
+                    
+                    # Check each face in scope against target
+                    best_similarity = -1
+                    matching_faces = []
+                    
+                    for face_embedding in scope_embeddings:
+                        from findAll import cosine_similarity
+                        similarity = cosine_similarity(target_embedding, face_embedding)
+                        
+                        if similarity > best_similarity:
+                            best_similarity = similarity
+                        
+                        if similarity >= threshold:
+                            matching_faces.append(similarity)
+                    
+                    if matching_faces:
+                        matches.append({
+                            'url': scope_url,
+                            'similarity': round(float(best_similarity), 4),
+                            'matching_faces': len(matching_faces),
+                            'all_similarities': [round(float(s), 4) for s in matching_faces]
+                        })
+                        
+                finally:
+                    # Clean up temporary file
+                    if scope_temp_path and os.path.exists(scope_temp_path):
+                        try:
+                            os.remove(scope_temp_path)
+                        except:
+                            pass
+            
+            # Sort matches by similarity
+            matches.sort(key=lambda x: x['similarity'], reverse=True)
+            
+            return jsonify({
+                'success': True,
+                'target_url': target_url,
+                'threshold': threshold,
+                'total_scope_images': len(scope_urls),
+                'total_matches': len(matches),
+                'matches': matches
+            }), 200
+            
+        finally:
+            # Clean up target temp file
+            if target_temp_path and os.path.exists(target_temp_path):
+                try:
+                    os.remove(target_temp_path)
+                except:
+                    pass
+                    
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'success': False
+        }), 500
+
 if __name__ == '__main__':
     # Ensure data directory exists
     if not os.path.exists('data'):
         print("Warning: 'data' directory not found. Make sure it exists with images to search.")
     
     print("🚀 Starting Face Finder API...")
-    print("📍 POST /api/findAll - Find matching faces")
+
+    print("🔄 POST /api/v0/embed - Pre-warm cache with image URLs")
+    print("🔍 POST /api/v0/findIn - Find target in scope of images")
     print("💚 GET /api/health - Health check")
     print("📊 GET /api/cache/stats - Get cache statistics")
     print("🧹 POST /api/cache/clear - Clear all cached embeddings")
