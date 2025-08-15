@@ -522,4 +522,4 @@ init_app()
 
 if __name__ == '__main__':
     # Development server - not used in production
-    app.run(host='0.0.0.0', port=5003, debug=True)
+    app.run(host='0.0.0.0', port=5003, ssl_context=('../cert.pem', '../key.pem'))
