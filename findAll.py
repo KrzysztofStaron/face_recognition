@@ -7,11 +7,10 @@ import glob
 import re
 from embedding_cache import EmbeddingCache
 
+# Extract the base name of the image from the url
 def parse_image_url(url):
     #https://klient.fotoklaser.pl/download.php?mode=api_preview&access=oGywJNAeoELTy4k_2_KE&file=demowki083.jpg
-    # extract the file name from the url
 
-    # demowki
     file_name = url.split("file=")[1]
     base_name = os.path.splitext(file_name)[0]
     base_name = re.sub(r'\d+', '', base_name)
@@ -178,6 +177,7 @@ def cache_stats():
     print("=" * 60)
     print("📊 EMBEDDING CACHE STATISTICS")
     print("=" * 60)
+    print(f"Total basenames: {stats.get('total_basenames', 'N/A')}")
     print(f"Total cached files: {stats['total_files']}")
     print(f"Total faces cached: {stats['total_faces']}")
     print(f"Cache size: {stats['cache_size_mb']} MB")
@@ -188,6 +188,12 @@ def cleanup_cache():
     cache = EmbeddingCache()
     removed = cache.remove_invalid_cache_entries()
     print(f"Cleaned up {removed} invalid cache entries")
+
+def migrate_cache():
+    """Migrate cache to new basename format"""
+    cache = EmbeddingCache()
+    migrated = cache.migrate_old_cache_format()
+    print(f"Migration completed: {migrated} entries migrated")
 
 if __name__ == "__main__":
     import sys
@@ -201,10 +207,13 @@ if __name__ == "__main__":
             cache_stats()
         elif command == "cleanup-cache":
             cleanup_cache()
+        elif command == "migrate-cache":
+            migrate_cache()
         else:
             print("Unknown command. Available commands:")
             print("  python findAll.py clear-cache    - Clear all cached embeddings")
             print("  python findAll.py cache-stats    - Show cache statistics")
             print("  python findAll.py cleanup-cache  - Remove invalid cache entries")
+            print("  python findAll.py migrate-cache  - Migrate to new basename cache format")
     else:
         main()

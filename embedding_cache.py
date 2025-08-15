@@ -6,9 +6,10 @@ import numpy as np
 from datetime import datetime
 import cv2
 from insightface.app import FaceAnalysis
+import re
 
 class EmbeddingCache:
-    """Cache system for face embeddings to avoid recalculating them each time"""
+    """Cache system for face embeddings organized by basename to avoid recalculating them each time"""
     
     def __init__(self, cache_dir="cache"):
         self.cache_dir = cache_dir
@@ -21,6 +22,17 @@ class EmbeddingCache:
         
         # Load or create metadata
         self.metadata = self._load_metadata()
+        
+        # Auto-migrate from old cache format if needed
+        self.migrate_old_cache_format()
+    
+    def _extract_basename(self, file_path):
+        """Extract basename from file path (e.g., demowki063.jpg -> demowki)"""
+        filename = os.path.basename(file_path)
+        base_name = os.path.splitext(filename)[0]
+        # Remove numbers to get the base name (e.g., demowki063 -> demowki)
+        base_name = re.sub(r'\d+', '', base_name)
+        return base_name
     
     def _load_metadata(self):
         """Load cache metadata or create empty if doesn't exist"""
@@ -48,9 +60,9 @@ class EmbeddingCache:
         except:
             return None
     
-    def _get_cache_key(self, file_path):
-        """Generate cache key from file path"""
-        return hashlib.md5(file_path.encode()).hexdigest()
+    def _get_basename_cache_file(self, basename):
+        """Get cache file path for a basename"""
+        return os.path.join(self.embeddings_dir, f"{basename}_embeddings.pkl")
     
     def _init_face_analysis(self):
         """Initialize face analysis app if not already done"""
@@ -61,10 +73,20 @@ class EmbeddingCache:
     
     def is_cached(self, file_path):
         """Check if embeddings for this file are cached and valid"""
-        cache_key = self._get_cache_key(file_path)
+        basename = self._extract_basename(file_path)
         
-        if cache_key not in self.metadata:
+        # Check if basename exists in metadata
+        if basename not in self.metadata:
             return False
+        
+        basename_data = self.metadata[basename]
+        filename = os.path.basename(file_path)
+        
+        # Check if this specific file is in the basename cache
+        if filename not in basename_data.get('files', {}):
+            return False
+        
+        file_data = basename_data['files'][filename]
         
         # Check if file still exists
         if not os.path.exists(file_path):
@@ -72,11 +94,11 @@ class EmbeddingCache:
         
         # Check if file has been modified
         current_hash = self._get_file_hash(file_path)
-        if current_hash != self.metadata[cache_key].get('file_hash'):
+        if current_hash != file_data.get('file_hash'):
             return False
         
         # Check if cache file exists
-        cache_file = os.path.join(self.embeddings_dir, f"{cache_key}.pkl")
+        cache_file = self._get_basename_cache_file(basename)
         if not os.path.exists(cache_file):
             return False
         
@@ -87,36 +109,62 @@ class EmbeddingCache:
         if not self.is_cached(file_path):
             return None
         
-        cache_key = self._get_cache_key(file_path)
-        cache_file = os.path.join(self.embeddings_dir, f"{cache_key}.pkl")
+        basename = self._extract_basename(file_path)
+        filename = os.path.basename(file_path)
+        cache_file = self._get_basename_cache_file(basename)
         
         try:
             with open(cache_file, 'rb') as f:
-                return pickle.load(f)
+                basename_cache = pickle.load(f)
+                return basename_cache.get(filename)
         except:
             return None
     
     def cache_embeddings(self, file_path, embeddings):
-        """Cache embeddings for a file"""
-        cache_key = self._get_cache_key(file_path)
-        cache_file = os.path.join(self.embeddings_dir, f"{cache_key}.pkl")
+        """Cache embeddings for a file organized by basename"""
+        basename = self._extract_basename(file_path)
+        filename = os.path.basename(file_path)
+        cache_file = self._get_basename_cache_file(basename)
         
-        # Save embeddings
+        # Load existing basename cache or create new one
+        basename_cache = {}
+        if os.path.exists(cache_file):
+            try:
+                with open(cache_file, 'rb') as f:
+                    basename_cache = pickle.load(f)
+            except:
+                basename_cache = {}
+        
+        # Add/update embeddings for this file
+        basename_cache[filename] = embeddings
+        
+        # Save updated basename cache
         try:
             with open(cache_file, 'wb') as f:
-                pickle.dump(embeddings, f)
+                pickle.dump(basename_cache, f)
         except Exception as e:
             print(f"Warning: Failed to cache embeddings for {file_path}: {e}")
             return False
         
         # Update metadata
         file_hash = self._get_file_hash(file_path)
-        self.metadata[cache_key] = {
+        
+        if basename not in self.metadata:
+            self.metadata[basename] = {
+                'basename': basename,
+                'cache_file': f"{basename}_embeddings.pkl",
+                'files': {},
+                'last_updated': datetime.now().isoformat()
+            }
+        
+        self.metadata[basename]['files'][filename] = {
             'file_path': file_path,
             'file_hash': file_hash,
             'cached_at': datetime.now().isoformat(),
             'num_faces': len(embeddings) if embeddings else 0
         }
+        self.metadata[basename]['last_updated'] = datetime.now().isoformat()
+        
         self._save_metadata()
         return True
     
@@ -164,7 +212,8 @@ class EmbeddingCache:
     def get_cache_stats(self):
         """Get statistics about the cache"""
         stats = {
-            'total_files': len(self.metadata),
+            'total_basenames': len(self.metadata),
+            'total_files': 0,
             'cache_size_mb': 0,
             'total_faces': 0
         }
@@ -180,37 +229,176 @@ class EmbeddingCache:
         except:
             pass
         
-        # Count total faces
-        for metadata in self.metadata.values():
-            stats['total_faces'] += metadata.get('num_faces', 0)
+        # Count total files and faces
+        for basename_data in self.metadata.values():
+            if 'files' in basename_data:
+                stats['total_files'] += len(basename_data['files'])
+                for file_data in basename_data['files'].values():
+                    stats['total_faces'] += file_data.get('num_faces', 0)
         
         return stats
     
     def remove_invalid_cache_entries(self):
         """Remove cache entries for files that no longer exist or have been modified"""
-        invalid_keys = []
+        basenames_to_remove = []
+        total_removed = 0
         
-        for cache_key, metadata in self.metadata.items():
-            file_path = metadata['file_path']
+        for basename, basename_data in self.metadata.items():
+            if 'files' not in basename_data:
+                basenames_to_remove.append(basename)
+                continue
+                
+            files_to_remove = []
             
-            # Check if file exists and hasn't been modified
-            if not os.path.exists(file_path) or self._get_file_hash(file_path) != metadata['file_hash']:
-                invalid_keys.append(cache_key)
+            for filename, file_data in basename_data['files'].items():
+                file_path = file_data['file_path']
+                
+                # Check if file exists and hasn't been modified
+                if not os.path.exists(file_path) or self._get_file_hash(file_path) != file_data['file_hash']:
+                    files_to_remove.append(filename)
+                    total_removed += 1
+            
+            # Remove invalid files from this basename
+            for filename in files_to_remove:
+                del basename_data['files'][filename]
+            
+            # If no files remain for this basename, remove the basename entirely
+            if not basename_data['files']:
+                basenames_to_remove.append(basename)
                 
                 # Remove cache file
-                cache_file = os.path.join(self.embeddings_dir, f"{cache_key}.pkl")
+                cache_file = self._get_basename_cache_file(basename)
                 if os.path.exists(cache_file):
                     try:
                         os.remove(cache_file)
                     except:
                         pass
+            else:
+                # Update basename cache file to remove invalid entries
+                cache_file = self._get_basename_cache_file(basename)
+                if os.path.exists(cache_file):
+                    try:
+                        with open(cache_file, 'rb') as f:
+                            basename_cache = pickle.load(f)
+                        
+                        # Remove files that were marked as invalid
+                        for filename in files_to_remove:
+                            basename_cache.pop(filename, None)
+                        
+                        # Save updated cache
+                        with open(cache_file, 'wb') as f:
+                            pickle.dump(basename_cache, f)
+                    except:
+                        pass
         
-        # Remove from metadata
-        for key in invalid_keys:
-            del self.metadata[key]
+        # Remove empty basenames from metadata
+        for basename in basenames_to_remove:
+            del self.metadata[basename]
         
-        if invalid_keys:
+        if total_removed > 0 or basenames_to_remove:
             self._save_metadata()
-            print(f"Removed {len(invalid_keys)} invalid cache entries")
+            print(f"Removed {total_removed} invalid cache entries across {len(basenames_to_remove)} basenames")
         
-        return len(invalid_keys)
+        return total_removed
+    
+    def migrate_old_cache_format(self):
+        """Migrate from old hash-based cache format to new basename format"""
+        print("Checking for old cache format to migrate...")
+        
+        # Check if we have old-style metadata (hash keys instead of basenames)
+        old_entries = []
+        for key, value in self.metadata.items():
+            # Old format has hash keys and 'file_path' directly in the value
+            if isinstance(value, dict) and 'file_path' in value and 'files' not in value:
+                old_entries.append((key, value))
+        
+        if not old_entries:
+            print("No old cache format detected.")
+            return 0
+        
+        print(f"Found {len(old_entries)} old cache entries to migrate...")
+        migrated_count = 0
+        
+        # Group old entries by basename
+        basename_groups = {}
+        for hash_key, old_data in old_entries:
+            file_path = old_data['file_path']
+            if not os.path.exists(file_path):
+                continue
+                
+            basename = self._extract_basename(file_path)
+            filename = os.path.basename(file_path)
+            
+            if basename not in basename_groups:
+                basename_groups[basename] = {}
+            
+            # Load embeddings from old cache file
+            old_cache_file = os.path.join(self.embeddings_dir, f"{hash_key}.pkl")
+            if os.path.exists(old_cache_file):
+                try:
+                    with open(old_cache_file, 'rb') as f:
+                        embeddings = pickle.load(f)
+                    basename_groups[basename][filename] = {
+                        'embeddings': embeddings,
+                        'metadata': old_data
+                    }
+                    migrated_count += 1
+                except:
+                    continue
+        
+        # Create new basename-based cache files
+        for basename, files_data in basename_groups.items():
+            # Create new cache file for this basename
+            cache_file = self._get_basename_cache_file(basename)
+            basename_cache = {}
+            
+            # Create new metadata structure
+            self.metadata[basename] = {
+                'basename': basename,
+                'cache_file': f"{basename}_embeddings.pkl",
+                'files': {},
+                'last_updated': datetime.now().isoformat()
+            }
+            
+            for filename, data in files_data.items():
+                embeddings = data['embeddings']
+                old_metadata = data['metadata']
+                
+                # Store embeddings in basename cache
+                basename_cache[filename] = embeddings
+                
+                # Store file metadata
+                self.metadata[basename]['files'][filename] = {
+                    'file_path': old_metadata['file_path'],
+                    'file_hash': old_metadata['file_hash'],
+                    'cached_at': old_metadata.get('cached_at', datetime.now().isoformat()),
+                    'num_faces': old_metadata.get('num_faces', len(embeddings) if embeddings else 0)
+                }
+            
+            # Save new basename cache file
+            try:
+                with open(cache_file, 'wb') as f:
+                    pickle.dump(basename_cache, f)
+            except Exception as e:
+                print(f"Warning: Failed to create new cache file for {basename}: {e}")
+                continue
+        
+        # Remove old entries from metadata and delete old cache files
+        for hash_key, old_data in old_entries:
+            # Remove old metadata entry
+            if hash_key in self.metadata:
+                del self.metadata[hash_key]
+            
+            # Remove old cache file
+            old_cache_file = os.path.join(self.embeddings_dir, f"{hash_key}.pkl")
+            if os.path.exists(old_cache_file):
+                try:
+                    os.remove(old_cache_file)
+                except:
+                    pass
+        
+        # Save updated metadata
+        self._save_metadata()
+        
+        print(f"Migration completed! Migrated {migrated_count} cache entries to basename format.")
+        return migrated_count
