@@ -97,22 +97,8 @@ Notes:
     {
       "url": "https://example.com/group1.jpg",
       "similarity": 0.8521,
-      "matching_faces": 2,
       "target_faces_found": 2,
-      "target_face_indices": [0, 1],
-      "all_similarities": [0.8521, 0.7234],
-      "detailed_matches": [
-        {
-          "target_face": 1,
-          "scope_face": 1,
-          "similarity": 0.8521
-        },
-        {
-          "target_face": 1,
-          "scope_face": 2,
-          "similarity": 0.7234
-        }
-      ]
+      "target_face_indices": [0, 1]
     }
   ]
 }
@@ -123,8 +109,7 @@ Notes:
 - `target_faces_count`: Number of faces detected in the target image
 - `target_faces_found`: Number of target faces found in this scope image
 - `target_face_indices`: Array of target face indices that were found
-- `detailed_matches`: Detailed breakdown showing which target face matched which scope face
-  - If `include_details` is true, each entry also contains `target_bbox`, `target_score`, `scope_bbox`, `scope_score`
+- If `include_details` is true: `face_matches` is included per image with entries containing `target_face`, `scope_face`, `similarity`, and optionally `target_bbox`, `target_score`, `scope_bbox`, `scope_score`.
 - `urls`: Array of scope image URLs where the target face(s) were detected (most important for consumers)
 - If `include_details` is true (top-level):
   - `selected_target_indices`: Which target faces were selected for matching

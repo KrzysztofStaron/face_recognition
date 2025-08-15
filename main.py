@@ -388,7 +388,7 @@ def find_in_scope():
 
                     # Build result entry
                     accepted_sorted = sorted(accepted, key=lambda x: x[0], reverse=True)
-                    detailed_matches = []
+                    face_matches = []
                     for sim, t_idx, s_idx in accepted_sorted:
                         match_entry = {
                             'target_face': t_idx,
@@ -404,17 +404,16 @@ def find_in_scope():
                                 match_entry['scope_score'] = scope_faces[s_idx].get('det_score')
                             except Exception:
                                 pass
-                        detailed_matches.append(match_entry)
+                        face_matches.append(match_entry)
 
                     result_entry = {
                         'url': scope_url,
                         'similarity': round(float(accepted_sorted[0][0] if accepted_sorted else best_similarity), 4),
-                        'matching_faces': len(accepted_sorted),
                         'target_faces_found': len({t for _, t, _ in accepted_sorted}),
-                        'target_face_indices': sorted({t for _, t, _ in accepted_sorted}),
-                        'all_similarities': [round(float(sim), 4) for sim, _, _ in accepted_sorted],
-                        'detailed_matches': detailed_matches
+                        'target_face_indices': sorted({t for _, t, _ in accepted_sorted})
                     }
+                    if include_details:
+                        result_entry['face_matches'] = face_matches
 
                     if include_details:
                         result_entry['scope_faces_count'] = len(scope_faces)
