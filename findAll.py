@@ -15,10 +15,6 @@ def parse_image_url(url):
     base_name = os.path.splitext(file_name)[0]
     base_name = re.sub(r'\d+', '', base_name)
     return base_name
-    
-
-
-print(parse_image_url("https://klient.fotoklaser.pl/download.php?mode=api_preview&access=oGywJNAeoELTy4k_2_KE&file=demowki083.jpg"))
 
 def cosine_similarity(a, b):
     """Calculate cosine similarity between two face embeddings"""
