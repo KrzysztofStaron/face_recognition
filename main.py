@@ -1,5 +1,7 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from typing import List, Optional, Any, Union
 import requests
 import cv2
 import numpy as np
@@ -10,8 +12,67 @@ from findAll import find_matching_photos, load_reference_face
 from insightface.app import FaceAnalysis
 from embedding_cache import EmbeddingCache
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes and origins
+app = FastAPI(
+    title="Face Finder API",
+    description="API for face recognition and matching",
+    version="1.0.0"
+)
+
+# Enable CORS for all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Pydantic models for request/response schemas
+class FindInRequest(BaseModel):
+    url: str
+    threshold: float = 0.6
+    data_directory: str = "data"
+
+class EmbedRequest(BaseModel):
+    urls: List[str]
+
+class FindInScopeRequest(BaseModel):
+    scope: List[str]
+    target: str
+    threshold: float = 0.6
+    target_face: Union[str, int, List[int]] = "all"
+    include_details: bool = False
+    max_results: Optional[int] = None
+
+class InspectRequest(BaseModel):
+    url: str
+
+class MatchResult(BaseModel):
+    filename: str
+    path: str
+    similarity: float
+    matching_faces: int
+    all_similarities: List[float]
+
+class FindInResponse(BaseModel):
+    success: bool
+    reference_url: str
+    threshold: float
+    data_directory: str
+    total_matches: int
+    matches: List[MatchResult]
+
+class HealthResponse(BaseModel):
+    status: str
+    service: str
+
+class CacheStatsResponse(BaseModel):
+    success: bool
+    cache_stats: dict
+
+class ErrorResponse(BaseModel):
+    error: str
+    success: bool
 
 def download_image_from_url(url):
     """Download image from URL and save to temporary file"""
@@ -110,61 +171,43 @@ def _cosine_similarity(a, b):
         return 0.0
     return float(_np.dot(a, b) / denom)
 
-@app.route('/api/findIn', methods=['POST'])
-def find_all():
+@app.post("/api/findIn", response_model=FindInResponse)
+async def find_all(request: FindInRequest):
     """API endpoint to find all photos containing a person from a reference URL"""
     try:
-        # Get JSON data from request
-        data = request.get_json()
-        
-        if not data or 'url' not in data:
-            return jsonify({
-                'error': 'Missing required field: url',
-                'success': False
-            }), 400
-        
-        image_url = data['url']
-        threshold = data.get('threshold', 0.6)  # Default threshold
-        data_directory = data.get('data_directory', 'data')  # Default to 'data' folder
-        
         # Validate threshold
-        if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
-            return jsonify({
-                'error': 'Threshold must be a number between 0 and 1',
-                'success': False
-            }), 400
+        if not isinstance(request.threshold, (int, float)) or request.threshold < 0 or request.threshold > 1:
+            raise HTTPException(status_code=400, detail="Threshold must be a number between 0 and 1")
         
         # Download reference image from URL
         temp_image_path = None
         try:
-            temp_image_path = download_image_from_url(image_url)
+            temp_image_path = download_image_from_url(request.url)
             
             # Find matching photos
-            matches = find_matching_photos(temp_image_path, data_directory, threshold)
-            
-            # Format response
-            response_data = {
-                'success': True,
-                'reference_url': image_url,
-                'threshold': threshold,
-                'data_directory': data_directory,
-                'total_matches': len(matches),
-                'matches': []
-            }
+            matches = find_matching_photos(temp_image_path, request.data_directory, request.threshold)
             
             # Sort matches by similarity (highest first)
             matches.sort(key=lambda x: x['similarity'], reverse=True)
             
+            formatted_matches = []
             for match in matches:
-                response_data['matches'].append({
-                    'filename': match['filename'],
-                    'path': match['path'],
-                    'similarity': round(float(match['similarity']), 4),
-                    'matching_faces': match['matching_faces'],
-                    'all_similarities': [round(float(s), 4) for s in match['all_similarities']]
-                })
+                formatted_matches.append(MatchResult(
+                    filename=match['filename'],
+                    path=match['path'],
+                    similarity=round(float(match['similarity']), 4),
+                    matching_faces=match['matching_faces'],
+                    all_similarities=[round(float(s), 4) for s in match['all_similarities']]
+                ))
             
-            return jsonify(response_data), 200
+            return FindInResponse(
+                success=True,
+                reference_url=request.url,
+                threshold=request.threshold,
+                data_directory=request.data_directory,
+                total_matches=len(formatted_matches),
+                matches=formatted_matches
+            )
             
         finally:
             # Clean up temporary file
@@ -174,94 +217,68 @@ def find_all():
                 except:
                     pass  # Ignore cleanup errors
                     
+    except HTTPException:
+        raise
     except Exception as e:
-        return jsonify({
-            'error': str(e),
-            'success': False
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/health', methods=['GET'])
-def health_check():
+@app.get("/api/health", response_model=HealthResponse)
+async def health_check():
     """Health check endpoint"""
-    return jsonify({
-        'status': 'healthy',
-        'service': 'face-finder-api'
-    }), 200
+    return HealthResponse(
+        status="healthy",
+        service="face-finder-api"
+    )
 
-@app.route('/api/cache/stats', methods=['GET'])
-def cache_stats():
+@app.get("/api/cache/stats", response_model=CacheStatsResponse)
+async def cache_stats():
     """Get cache statistics"""
     try:
         cache = EmbeddingCache()
         stats = cache.get_cache_stats()
-        return jsonify({
-            'success': True,
-            'cache_stats': stats
-        }), 200
+        return CacheStatsResponse(
+            success=True,
+            cache_stats=stats
+        )
     except Exception as e:
-        return jsonify({
-            'error': str(e),
-            'success': False
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/cache/clear', methods=['POST'])
-def clear_cache():
+@app.post("/api/cache/clear")
+async def clear_cache():
     """Clear all cached embeddings"""
     try:
         cache = EmbeddingCache()
         cache.clear_cache()
-        return jsonify({
+        return {
             'success': True,
             'message': 'Cache cleared successfully'
-        }), 200
+        }
     except Exception as e:
-        return jsonify({
-            'error': str(e),
-            'success': False
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/cache/cleanup', methods=['POST'])
-def cleanup_cache():
+@app.post("/api/cache/cleanup")
+async def cleanup_cache():
     """Remove invalid cache entries"""
     try:
         cache = EmbeddingCache()
         removed = cache.remove_invalid_cache_entries()
-        return jsonify({
+        return {
             'success': True,
             'message': f'Cleaned up {removed} invalid cache entries',
             'removed_entries': removed
-        }), 200
+        }
     except Exception as e:
-        return jsonify({
-            'error': str(e),
-            'success': False
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/v0/embed', methods=['POST'])
-def embed_images():
+@app.post("/api/v0/embed")
+async def embed_images(request: EmbedRequest):
     """Pre-warm cache by downloading and creating embeddings for multiple images"""
     try:
-        # Get JSON data from request
-        data = request.get_json()
-        
-        if not data or 'urls' not in data:
-            return jsonify({
-                'error': 'Missing required field: urls',
-                'success': False
-            }), 400
-        
-        urls = data['urls']
-        if not isinstance(urls, list):
-            return jsonify({
-                'error': 'urls must be an array',
-                'success': False
-            }), 400
-        
         # Initialize cache
         cache = EmbeddingCache()
         results = []
         
-        for url in urls:
+        for url in request.urls:
             temp_image_path = None
             try:
                 # Download image
@@ -293,62 +310,42 @@ def embed_images():
                     except:
                         pass
         
-        return jsonify({
+        return {
             'success': True,
-            'total_urls': len(urls),
+            'total_urls': len(request.urls),
             'results': results
-        }), 200
+        }
         
     except Exception as e:
-        return jsonify({
-            'error': str(e),
-            'success': False
-        }), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
-@app.route('/api/v0/findIn', methods=['POST'])
-def find_in_scope():
+@app.post("/api/v0/findIn")
+async def find_in_scope(request: FindInScopeRequest):
     """Find target person in a scope of images with robust multi-face handling"""
     try:
-        data = request.get_json()
-        if not data:
-            return jsonify({'error': 'Missing request body', 'success': False}), 400
-
-        if 'scope' not in data or 'target' not in data:
-            return jsonify({'error': 'Missing required fields: scope and target', 'success': False}), 400
-
-        scope_urls = data['scope']
-        target_url = data['target']
-        threshold = data.get('threshold', 0.6)
-        target_face_selector = data.get('target_face', 'all')  # 'all' | 'largest' | 'best' | int | [int]
-        include_details = bool(data.get('include_details', False))
-        max_results = data.get('max_results')
-
-        if not isinstance(scope_urls, list):
-            return jsonify({'error': 'scope must be an array of URLs', 'success': False}), 400
-
-        if not isinstance(threshold, (int, float)) or threshold < 0 or threshold > 1:
-            return jsonify({'error': 'Threshold must be a number between 0 and 1', 'success': False}), 400
+        if not isinstance(request.threshold, (int, float)) or request.threshold < 0 or request.threshold > 1:
+            raise HTTPException(status_code=400, detail="Threshold must be a number between 0 and 1")
 
         cache = EmbeddingCache()
 
         # Download and get faces for target
         target_temp_path = None
         try:
-            target_temp_path = download_image_from_url(target_url)
-            target_faces = cache.get_or_compute_url_faces(target_url, target_temp_path)
+            target_temp_path = download_image_from_url(request.target)
+            target_faces = cache.get_or_compute_url_faces(request.target, target_temp_path)
             if not target_faces:
-                return jsonify({'error': 'No face detected in target image', 'success': False}), 400
+                raise HTTPException(status_code=400, detail="No face detected in target image")
 
-            selected_target_indices = _select_target_face_indices(target_faces, target_face_selector)
+            selected_target_indices = _select_target_face_indices(target_faces, request.target_face)
             if not selected_target_indices:
-                return jsonify({'error': 'Target face selector did not select any faces', 'success': False}), 400
+                raise HTTPException(status_code=400, detail="Target face selector did not select any faces")
 
             # Prepare selected target embeddings and optional metadata
             selected_targets = [(i, target_faces[i]) for i in selected_target_indices]
 
             # Process each scope image
             matches = []
-            for scope_url in scope_urls:
+            for scope_url in request.scope:
                 scope_temp_path = None
                 try:
                     scope_temp_path = download_image_from_url(scope_url)
@@ -365,7 +362,7 @@ def find_in_scope():
                             sim = _cosine_similarity(t_emb, s_face.get('embedding'))
                             if sim > best_similarity:
                                 best_similarity = sim
-                            if sim >= threshold:
+                            if sim >= request.threshold:
                                 candidate_pairs.append((sim, t_idx, s_idx))
 
                     if not candidate_pairs:
@@ -395,7 +392,7 @@ def find_in_scope():
                             'scope_face': s_idx,
                             'similarity': round(float(sim), 4)
                         }
-                        if include_details:
+                        if request.include_details:
                             # add bboxes/scores if available
                             try:
                                 match_entry['target_bbox'] = target_faces[t_idx].get('bbox')
@@ -412,10 +409,10 @@ def find_in_scope():
                         'target_faces_found': len({t for _, t, _ in accepted_sorted}),
                         'target_face_indices': sorted({t for _, t, _ in accepted_sorted})
                     }
-                    if include_details:
+                    if request.include_details:
                         result_entry['face_matches'] = face_matches
 
-                    if include_details:
+                    if request.include_details:
                         result_entry['scope_faces_count'] = len(scope_faces)
 
                     matches.append(result_entry)
@@ -428,21 +425,21 @@ def find_in_scope():
 
             # Sort and trim results
             matches.sort(key=lambda x: x['similarity'], reverse=True)
-            if isinstance(max_results, int) and max_results > 0:
-                matches = matches[:max_results]
+            if isinstance(request.max_results, int) and request.max_results > 0:
+                matches = matches[:request.max_results]
 
             response = {
                 'success': True,
-                'target_url': target_url,
+                'target_url': request.target,
                 'target_faces_count': len(target_faces),
-                'threshold': threshold,
-                'total_scope_images': len(scope_urls),
+                'threshold': request.threshold,
+                'total_scope_images': len(request.scope),
                 'total_matches': len(matches),
                 'urls': [m['url'] for m in matches],
                 'matches': matches
             }
 
-            if include_details:
+            if request.include_details:
                 response['selected_target_indices'] = selected_target_indices
                 response['target_summary'] = [
                     {
@@ -452,30 +449,28 @@ def find_in_scope():
                     } for i, f in enumerate(target_faces)
                 ]
 
-            return jsonify(response), 200
+            return response
         finally:
             if target_temp_path and os.path.exists(target_temp_path):
                 try:
                     os.remove(target_temp_path)
                 except:
                     pass
+    except HTTPException:
+        raise
     except Exception as e:
-        return jsonify({'error': str(e), 'success': False}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.route('/api/v0/inspect', methods=['POST'])
-def inspect_image_faces():
+@app.post("/api/v0/inspect")
+async def inspect_image_faces(request: InspectRequest):
     """Return face metadata (bbox, score) for a given image URL so client can choose target face."""
     try:
-        data = request.get_json()
-        if not data or 'url' not in data:
-            return jsonify({'error': 'Missing required field: url', 'success': False}), 400
-        url = data['url']
         cache = EmbeddingCache()
         temp_path = None
         try:
-            temp_path = download_image_from_url(url)
-            faces = cache.get_or_compute_url_faces(url, temp_path)
+            temp_path = download_image_from_url(request.url)
+            faces = cache.get_or_compute_url_faces(request.url, temp_path)
             if faces is None:
                 faces = []
             response_faces = []
@@ -485,12 +480,12 @@ def inspect_image_faces():
                     'bbox': f.get('bbox'),
                     'score': f.get('det_score')
                 })
-            return jsonify({
+            return {
                 'success': True,
-                'url': url,
+                'url': request.url,
                 'faces_count': len(response_faces),
                 'faces': response_faces
-            }), 200
+            }
         finally:
             if temp_path and os.path.exists(temp_path):
                 try:
@@ -498,7 +493,7 @@ def inspect_image_faces():
                 except:
                     pass
     except Exception as e:
-        return jsonify({'error': str(e), 'success': False}), 500
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Initialize data directory check and logging
 def init_app():
@@ -521,5 +516,6 @@ def init_app():
 init_app()
 
 if __name__ == '__main__':
+    import uvicorn
     # Development server - not used in production
-    app.run(host='0.0.0.0', port=5003, ssl_context=('cert.pem', 'key.pem'))
+    uvicorn.run(app, host='0.0.0.0', port=5003)

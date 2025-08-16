@@ -104,17 +104,18 @@ Special:
 - Embedding cache improves performance for repeated image analysis
 - Consider using a reverse proxy (nginx) for production deployments
 - Monitor memory usage as face detection can be memory-intensive
+- Single worker is recommended for ML workloads to avoid model loading overhead
 
 ### Troubleshooting
 
-1. **Port already in use**: Change port in `gunicorn.conf.py`
-2. **Memory issues**: Reduce number of workers in configuration
-3. **Timeout errors**: Increase timeout value for large images
+1. **Port already in use**: Change port in `uvicorn_config.py` or set PORT environment variable
+2. **Memory issues**: Use single worker configuration (default)
+3. **Timeout errors**: Increase timeout values in uvicorn configuration
 4. **Permission errors**: Check file permissions for cache directory
 
 ## Project files and purpose
 
-- `main.py`: Flask API application.
+- `main.py`: FastAPI application.
 
   - Exposes endpoints: `POST /api/v0/embed`, `POST /api/v0/findIn`, `POST /api/v0/inspect`, `GET /api/health`, and cache utilities `GET /api/cache/stats`, `POST /api/cache/clear`, `POST /api/cache/cleanup`.
   - Contains helpers like `download_image_from_url`, target face selection, and cosine similarity.
@@ -134,24 +135,21 @@ Special:
 
   - Demonstrates pre-warming cache, single-target search, and batch searches via HTTP.
 
-- `waitress_config.py`: Production entrypoint for Windows/cross‑platform (Waitress).
+- `uvicorn_config.py`: Production entrypoint for cross-platform (Uvicorn).
 
-  - Reads `HOST`, `PORT`, `THREADS` env vars and serves `main.app` with Waitress.
+  - Reads `HOST`, `PORT`, `WORKERS` env vars and serves `main.app` with Uvicorn.
   - Ensures `cache/embeddings/` and `data/` directories exist.
+  - Optimized for ML workloads with appropriate timeouts.
 
-- `wsgi.py`: Minimal WSGI entry that exposes `app` for servers (e.g., Gunicorn/Waitress).
-
-- `gunicorn.conf.py`: Gunicorn configuration for Linux/macOS deployments.
-
-  - Binds `0.0.0.0:5003`, sets worker count/timeouts, and optimizes tmp dir (`/dev/shm`).
+- `wsgi.py`: Renamed to ASGI entry point that exposes `app` for ASGI servers (Uvicorn).
 
 - `start_production.bat`: Windows startup script.
 
-  - Activates `venv` (if present), installs `requirements.txt`, creates dirs, and runs `waitress_config.py`.
+  - Activates `venv` (if present), installs `requirements.txt`, creates dirs, and runs `uvicorn_config.py`.
 
 - `start_production.sh`: Unix-like startup script.
 
-  - Activates `venv` (if present), installs dependencies, creates dirs, and starts Gunicorn (or Waitress if on Windows environment).
+  - Activates `venv` (if present), installs dependencies, creates dirs, and starts Uvicorn.
 
 - `API_v0_DOCS.md`: Detailed API v0 usage guide (Polish) with request/response examples.
 

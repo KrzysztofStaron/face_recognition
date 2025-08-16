@@ -1,5 +1,5 @@
 @echo off
-echo 🚀 Starting Face Finder API with Waitress (Windows-compatible)...
+echo 🚀 Starting Face Finder API with Uvicorn (Windows-compatible)...
 
 REM Activate virtual environment if it exists
 if exist "venv\Scripts\activate.bat" (
@@ -15,8 +15,8 @@ REM Create necessary directories
 if not exist "cache\embeddings" mkdir cache\embeddings
 if not exist "data" mkdir data
 
-REM Start Waitress server
-echo 🌟 Starting Waitress server...
-python waitress_config.py
+REM Start Uvicorn server
+echo 🌟 Starting Uvicorn server...
+python uvicorn_config.py
 
 pause
